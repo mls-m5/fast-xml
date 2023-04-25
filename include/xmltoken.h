@@ -1,5 +1,6 @@
 #pragma once
 
+#include "xml_utils.h"
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -15,45 +16,22 @@ enum class TokenType {
     CDATA            // <![CDATA[data]]>
 };
 
-std::string strip(const std::string &str) {
-    const auto start = str.find_first_not_of(" \t\n\r\f\v");
-    if (start == std::string::npos) {
-        return "";
-    }
-    const auto end = str.find_last_not_of(" \t\n\r\f\v");
-    return str.substr(start, end - start + 1);
-}
-
 class XmlToken {
 public:
     XmlToken(TokenType type = TokenType::UNKNOWN,
              std::string value = "",
              std::size_t line = 0,
-             std::size_t col = 0)
-        : _type(type)
-        , _value(strip(value))
-        , _line(line)
-        , _col(col) {}
+             std::size_t col = 0);
 
-    std::string_view str() const {
-        return _value;
-    }
+    std::string_view str() const;
 
-    std::size_t line() const {
-        return _line;
-    }
+    std::size_t line() const;
 
-    std::size_t col() const {
-        return _col;
-    }
+    std::size_t col() const;
 
-    TokenType type() const {
-        return _type;
-    }
+    TokenType type() const;
 
-    bool operator==(const XmlToken other) const {
-        return type() == other.type() && str() == other.str();
-    }
+    bool operator==(const XmlToken other) const;
 
 private:
     TokenType _type;
@@ -89,4 +67,43 @@ std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
     os << "('" << token.str() << "', " << to_string(token.type()) << ", "
        << token.line() << ", " << token.col() << ")";
     return os;
+}
+
+std::string join_tokens(const std::vector<XmlToken> &tokens) {
+    std::string result;
+    for (const auto &token : tokens) {
+        if (token.type() == TokenType::TEXT_CONTENT) {
+            result.append(token.str());
+        }
+    }
+    return result;
+}
+
+inline XmlToken::XmlToken(TokenType type,
+                          std::string value,
+                          std::size_t line,
+                          std::size_t col)
+    : _type(type)
+    , _value(strip(value))
+    , _line(line)
+    , _col(col) {}
+
+inline std::string_view XmlToken::str() const {
+    return _value;
+}
+
+inline std::size_t XmlToken::line() const {
+    return _line;
+}
+
+inline std::size_t XmlToken::col() const {
+    return _col;
+}
+
+inline TokenType XmlToken::type() const {
+    return _type;
+}
+
+inline bool XmlToken::operator==(const XmlToken other) const {
+    return type() == other.type() && str() == other.str();
 }

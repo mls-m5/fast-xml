@@ -1,168 +1,57 @@
-// xml_parser.h
-#include "xmltoken.h"
-#include <cctype>
-#include <istream>
-#include <vector>
+#pragma once
 
-std::vector<XmlToken> tokenize(std::istream &input) {
-    std::vector<XmlToken> tokens;
-    std::string current_token;
-    std::size_t line = 1, col = 1;
-    char ch;
+#include "xml_tokenizer.h"
+#include "xmlnode.h"
+#include <stack>
 
-    enum class State {
-        TEXT,
-        OPEN_TAG,
-        TAG_NAME,
-        ATTRIBUTE_NAME,
-        ATTRIBUTE_VALUE_START,
-        ATTRIBUTE_VALUE,
-        CLOSE_TAG,
-        COMMENT,
-        CDATA
-    };
+XmlNode parse(std::istream &input) {
+    std::vector<XmlToken> tokens = tokenize(input);
 
-    State state = State::TEXT;
+    // Use a stack to keep track of nested elements
+    std::stack<XmlNode> node_stack;
 
-    while (std::isspace(input.peek())) {
-        input.get(ch);
-    }
+    for (const XmlToken &token : tokens) {
+        switch (token.type()) {
+        case TokenType::ELEMENT_OPEN: {
+            // Create a new XmlNode and add it to the parent node
+            XmlNode node(XmlNode::Type::ELEMENT, token.str());
+            if (!node_stack.empty()) {
+                node_stack.top().add_child(node);
+            }
+            node_stack.push(node);
 
-    while (input.get(ch)) {
-        switch (state) {
-        case State::TEXT:
-            if (ch == '<') {
-                current_token = strip(std::move(current_token));
-                if (!current_token.empty()) {
-                    tokens.emplace_back(TokenType::TEXT_CONTENT,
-                                        current_token,
-                                        line,
-                                        col - current_token.size());
-                    current_token.clear();
-                }
-                state = State::OPEN_TAG;
+            // Add attributes to the node
+            XmlNode::XmlAttributes &attributes = node.attributes();
+            while (tokens.front().type() == TokenType::ATTRIBUTE_NAME) {
+                XmlToken name_token = tokens.front();
+                tokens.erase(tokens.begin());
+                XmlToken value_token = tokens.front();
+                tokens.erase(tokens.begin());
+                attributes.push_back(
+                    XmlNode::XmlAttribute{name_token.str(), value_token.str()});
             }
-            else {
-                current_token += ch;
-            }
-            break;
-        case State::OPEN_TAG:
-            if (ch == '/') {
-                state = State::CLOSE_TAG;
-            }
-            else if (std::isalnum(ch)) {
-                current_token += ch;
-                state = State::TAG_NAME;
-            }
-            break;
-        case State::TAG_NAME:
-            if (ch == ' ') {
-                tokens.emplace_back(TokenType::ELEMENT_OPEN,
-                                    current_token,
-                                    line,
-                                    col - current_token.size());
-                current_token.clear();
-                state = State::ATTRIBUTE_NAME;
-            }
-            else if (ch == '>') {
-                tokens.emplace_back(TokenType::ELEMENT_OPEN,
-                                    current_token,
-                                    line,
-                                    col - current_token.size());
-                current_token.clear();
-                state = State::TEXT;
-
-                if (current_token.empty()) {
-                    while (input && std::isspace(input.peek())) {
-                        input.get(ch);
-                    }
-                }
-            }
-            else {
-                current_token += ch;
-            }
-            break;
-        case State::ATTRIBUTE_NAME:
-            if (ch == '=') {
-                tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
-                                    current_token,
-                                    line,
-                                    col - current_token.size());
-                current_token.clear();
-                state = State::ATTRIBUTE_VALUE_START;
-            }
-            else if (ch == '>') {
-                if (!current_token.empty()) {
-                    tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
-                                        current_token,
-                                        line,
-                                        col - current_token.size());
-                    current_token.clear();
-                }
-                state = State::TEXT;
-
-                if (current_token.empty()) {
-                    while (input && std::isspace(input.peek())) {
-                        input.get(ch);
-                    }
-                }
-            }
-            else {
-                current_token += ch;
-            }
-            break;
-        case State::ATTRIBUTE_VALUE_START:
-            if (ch == '\"') {
-                state = State::ATTRIBUTE_VALUE;
-            }
-            break;
-        case State::ATTRIBUTE_VALUE:
-            if (ch == '\"') {
-                tokens.emplace_back(TokenType::ATTRIBUTE_VALUE,
-                                    current_token,
-                                    line,
-                                    col - current_token.size());
-                current_token.clear();
-                state = State::ATTRIBUTE_NAME;
-            }
-            else {
-                current_token += ch;
-            }
-            break;
-        case State::CLOSE_TAG:
-            if (ch == '>') {
-                state = State::TEXT;
-                tokens.emplace_back(TokenType::ELEMENT_CLOSE, "", line, col);
-            }
-            break;
-        case State::COMMENT:
-            if (ch == '-') {
-                // Ignore comments for now
-            }
-            else {
-                state = State::TEXT;
-            }
-            break;
-        case State::CDATA:
-            // Ignore CDATA for now
             break;
         }
-
-        if (ch == '\n') {
-            line++;
-            col = 1;
+        case TokenType::ELEMENT_CLOSE: {
+            // Pop the last element off the stack
+            node_stack.pop();
+            break;
         }
-        else {
-            col++;
+        case TokenType::TEXT_CONTENT: {
+            // Create a new XmlNode with the text content and add it to the
+            // parent node
+            XmlNode node(XmlNode::Type::TEXT_CONTENT, "", {}, {}, token.str());
+            if (!node_stack.empty()) {
+                node_stack.top().add_child(node);
+            }
+            break;
+        }
+        default:
+            // Ignore all other tokens
+            break;
         }
     }
 
-    if (!current_token.empty()) {
-        tokens.emplace_back(TokenType::TEXT_CONTENT, current_token, line, col);
-        if (tokens.back().str().empty()) {
-            tokens.pop_back();
-        }
-    }
-
-    return tokens;
+    // The root node is the only node left in the stack
+    return node_stack.top();
 }

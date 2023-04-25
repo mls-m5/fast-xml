@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(xml_parser_test)
-
 # Fetch GoogleTest
 include(FetchContent)
 FetchContent_Declare(
@@ -14,15 +12,16 @@ FetchContent_MakeAvailable(googletest)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 
-# Create the test executable
-enable_testing()
-add_executable(xml_parser_test xml_parser_test.cpp)
-
-# Link the interface library and gtest_main to the test executable
-target_link_libraries(xml_parser_test PRIVATE xml_parser_interface gtest_main)
-
-# Register the test using CMake's add_test command
-add_test(NAME xml_parser_test COMMAND xml_parser_test)
-
 include(GoogleTest)
-gtest_discover_tests(xml_parser_test WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Define a function to add a test
+function(add_xml_parser_test test_name source_file)
+  add_executable(${test_name} ${source_file})
+  target_link_libraries(${test_name} PRIVATE xml_parser_interface gtest_main)
+  add_test(NAME ${test_name} COMMAND ${test_name})
+  gtest_discover_tests(${test_name} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endfunction()
+
+# Add the two tests
+add_xml_parser_test(xml_tokenizer_test xml_tokenizer_test.cpp)
+add_xml_parser_test(xml_node_test xml_node_test.cpp)

@@ -1,5 +1,5 @@
 // xml_parser_test.cpp
-#include "xml_parser.h"
+#include "xml_tokenizer.h"
 #include <gtest/gtest.h>
 #include <sstream>
 
@@ -18,20 +18,13 @@ TEST(XmlParserTest, TokenizeBasicXml) {
     // Output the received tokens for debugging
     std::cout << "Received tokens:" << std::endl;
     for (const auto &token : tokens) {
-        //        std::cout << "Type: " << static_cast<int>(token.type())
-        //                  << ", Content: " << token.str() << ", Line: " <<
-        //                  token.line()
-        //                  << ", Column: " << token.col() << std::endl;
         std::cout << token;
     }
 
     ASSERT_EQ(tokens.size(), expected_tokens.size());
 
     for (std::size_t i = 0; i < tokens.size(); ++i) {
-        EXPECT_EQ(tokens[i].type(), expected_tokens[i].type());
-        EXPECT_EQ(tokens[i].str(), expected_tokens[i].str());
-        //        EXPECT_EQ(tokens[i].line(), expected_tokens[i].line());
-        //        EXPECT_EQ(tokens[i].col(), expected_tokens[i].col());
+        EXPECT_EQ(tokens[i], expected_tokens[i]);
     }
 }
 
@@ -90,9 +83,5 @@ TEST(XmlParserTest, MoreComplexExample) {
     for (size_t i = 0; i < tokens.size() && i < expected_tokens.size(); ++i) {
         EXPECT_EQ(tokens.at(i), expected_tokens.at(i))
             << "Failure at index " << i << ".";
-        //        EXPECT_EQ(tokens[i].str(), expected_tokens[i].str())
-        //            << "Failure at index " << i << ".";
-        // EXPECT_EQ(tokens[i].line(), expected_tokens[i].line());
-        // EXPECT_EQ(tokens[i].col(), expected_tokens[i].col());
     }
 }
