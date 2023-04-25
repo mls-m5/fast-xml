@@ -1,4 +1,5 @@
 // xml_parser_test.cpp
+#include "fast-xml/slow_xml_parser.h"
 #include "fast-xml/xml_parser.h"
 #include "gtest/gtest-typed-test.h"
 #include <gtest/gtest.h>
