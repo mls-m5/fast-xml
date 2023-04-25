@@ -1,11 +1,11 @@
 // xml_parser.h
-#include "xmltoken.h"
+#include "slowxmltoken.h"
 #include <cctype>
 #include <istream>
 #include <vector>
 
-std::vector<XmlToken> tokenizeSlow(std::istream &input) {
-    std::vector<XmlToken> tokens;
+std::vector<SlowXmlToken> tokenizeSlow(std::istream &input) {
+    std::vector<SlowXmlToken> tokens;
     std::string current_token;
     std::size_t line = 1, col = 1;
     char ch;
@@ -78,6 +78,22 @@ std::vector<XmlToken> tokenizeSlow(std::istream &input) {
                     }
                 }
             }
+            else if (ch == '/') {
+                tokens.emplace_back(TokenType::ELEMENT_OPEN,
+                                    current_token,
+                                    line,
+                                    col - current_token.size());
+                current_token = {};
+
+                if (current_token.empty()) {
+                    while (input && std::isspace(input.peek())) {
+                        input.get(ch);
+                    }
+                }
+
+                state = State::CLOSE_TAG;
+                break;
+            }
             else {
                 current_token += ch;
             }
@@ -106,6 +122,18 @@ std::vector<XmlToken> tokenizeSlow(std::istream &input) {
                         input.get(ch);
                     }
                 }
+            }
+            else if (ch == '/') {
+                input.get(ch);
+                if (ch != '>') {
+                    throw std::runtime_error{"expected '>' got " +
+                                             std::string{ch, 1}};
+                }
+                tokens.emplace_back(TokenType::ELEMENT_CLOSE,
+                                    "",
+                                    line,
+                                    col - current_token.size());
+                state = State::TEXT;
             }
             else {
                 current_token += ch;

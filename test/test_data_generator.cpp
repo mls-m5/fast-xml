@@ -13,7 +13,7 @@ int main() {
 
     SlowXmlNode root{SlowXmlNode::Type::ELEMENT, "root"};
 
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 1000000; ++i) {
         // Determine the type of tag to create
         int tag_type = tag_dist(rng);
 

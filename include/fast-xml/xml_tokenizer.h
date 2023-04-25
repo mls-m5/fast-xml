@@ -92,20 +92,6 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
                 }
             }
             else if (*ch == '/') {
-                //                input.get(ch);
-                //                if (*ch != '>') {
-                //                    throw std::runtime_error{"expected '>' got
-                //                    " +
-                //                                             std::string{ch,
-                //                                             1}};
-                //                }
-                //                tokens.emplace_back(TokenType::ELEMENT_CLOSE,
-                //                                    "",
-                //                                    line,
-                //                                    col -
-                //                                    current_token.size());
-                //                state = State::TEXT;
-
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
                                     line,

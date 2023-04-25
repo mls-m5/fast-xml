@@ -24,7 +24,9 @@ endfunction()
 
 # Add the two tests
 add_xml_parser_test(xml_tokenizer_test xml_tokenizer_test.cpp)
+add_xml_parser_test(slow_xml_tokenizer_test slow_xml_tokenizer_test.cpp)
 add_xml_parser_test(xml_node_test xml_node_test.cpp)
+add_xml_parser_test(slow_xml_node_test xml_node_test.cpp)
 
 file (COPY uggly.xml DESTINATION .)
 

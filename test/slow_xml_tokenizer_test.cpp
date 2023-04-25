@@ -1,16 +1,16 @@
 // xml_parser_test.cpp
-#include "fast-xml/xml_tokenizer.h"
+#include "fast-xml/slow_xml_tokenizer.h"
+#include "fast-xml/slowxmltoken.h"
 #include <gtest/gtest.h>
 #include <sstream>
 
+using XmlToken = SlowXmlToken;
+
 TEST(XmlParserTest, TokenizeBasicXml) {
-    //    std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
     std::string xml_input =
-        "<root attr=\"value\">Hello, world!<empty attr=\"value\"/></root>";
+        "<root attr=\"value\">Hello, world!<empty attr=\"value\"></root>";
     std::istringstream input(xml_input);
-    auto file = XmlFile{input};
-    auto reader = file.reader();
-    std::vector<XmlToken> tokens = tokenize(reader);
+    std::vector<XmlToken> tokens = tokenizeSlow(input);
 
     std::vector<XmlToken> expected_tokens = {
         XmlToken(TokenType::ELEMENT_OPEN, "root", 1, 1),
@@ -58,9 +58,7 @@ TEST(XmlParserTest, MoreComplexExample) {
 </catalog>
 )");
 
-    auto file = XmlFile{input};
-    auto reader = file.reader();
-    std::vector<XmlToken> tokens = tokenize(reader);
+    std::vector<XmlToken> tokens = tokenizeSlow(input);
 
     std::vector<XmlToken> expected_tokens = {
         XmlToken(TokenType::ELEMENT_OPEN, "catalog", 2, 1),

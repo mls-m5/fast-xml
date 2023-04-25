@@ -75,6 +75,10 @@ public:
             return attributes.size();
         }
 
+        auto &front() const {
+            return attributes.front();
+        }
+
         void clear() {
             attributes.clear();
         }

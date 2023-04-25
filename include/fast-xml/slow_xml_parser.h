@@ -2,14 +2,15 @@
 
 #include "slow_xml_tokenizer.h"
 #include "slowxmlnode.h"
+#include "slowxmltoken.h"
 #include <iostream>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
 
-SlowXmlNode parseSlow(std::vector<XmlToken>::const_iterator &it,
-                      std::vector<XmlToken>::const_iterator end) {
+SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
+                      std::vector<SlowXmlToken>::const_iterator end) {
 
     if (it->type() == TokenType::TEXT_CONTENT) {
         SlowXmlNode node(SlowXmlNode::Type::TEXT_CONTENT, "");
@@ -65,7 +66,7 @@ SlowXmlNode parseSlow(std::vector<XmlToken>::const_iterator &it,
 }
 
 SlowXmlNode parseSlow(std::istream &input) {
-    std::vector<XmlToken> tokens = tokenizeSlow(input);
+    std::vector<SlowXmlToken> tokens = tokenizeSlow(input);
     auto it = tokens.cbegin();
 
     return parseSlow(it, tokens.cend());

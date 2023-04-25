@@ -1,22 +1,22 @@
-#include "fast-xml/xml_parser.h"
+#include "fast-xml/slow_xml_parser.h"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-using XmlT = XmlNode;
+using XmlT = SlowXmlNode;
 
 TEST(XmlTest, ParseSimpleXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!<empty"
                             "/><empty attr=\"v\"/></root>";
     std::istringstream input(xml_input);
 
-    auto root2 = parse(input);
-    auto root = root2.root();
+    auto root = parseSlow(input);
+    //    auto root = root2.root();
     std::cout << root << "\n";
 
-    EXPECT_TRUE(root2.file->isInFile(root.name()));
+    //    EXPECT_TRUE(root2.file->isInFile(root.name()));
     EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
     EXPECT_EQ(root.name(), "root") << root;
 
@@ -52,8 +52,8 @@ TEST(XmlTest, ParseComplexXml) {
 )";
     std::istringstream input(xml_input);
 
-    auto root2 = parse(input);
-    auto root = root2.root();
+    auto root = parseSlow(input);
+    //    auto root = root2.root();
 
     std::cout << root << "\n";
 
