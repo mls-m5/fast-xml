@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -9,28 +10,52 @@ class XmlNode {
 public:
     enum class Type { ELEMENT, TEXT_CONTENT };
 
+    struct Iterator {
+        const XmlNode *ptr = 0;
+
+        void operator++() {
+            ptr = ptr->_next;
+        }
+
+        bool operator==(const Iterator &other) const {
+            return ptr == other.ptr;
+        }
+
+        bool operator!=(const Iterator &other) const {
+            return ptr != other.ptr;
+        }
+
+        const XmlNode &operator*() {
+            return *ptr;
+        }
+
+        const XmlNode *operator->() {
+            return ptr;
+        }
+    };
+
     Type type() const {
         return _type;
     }
 
     void name(std::string_view name) {
-        _name = std::string{name};
+        _name = name;
     }
 
     std::string_view name() const {
         return _name;
     }
 
-    std::vector<XmlNode>::const_iterator begin() const {
-        return _children.cbegin();
+    Iterator begin() const {
+        return Iterator{_children};
     }
 
-    std::vector<XmlNode>::const_iterator end() const {
-        return _children.cend();
+    Iterator end() const {
+        return {};
     }
 
     void content(std::string_view value) {
-        _content = std::string{value};
+        _content = value;
     }
 
     std::string_view content() const {
@@ -40,8 +65,9 @@ public:
     struct XmlAttribute {
         std::string_view name;
         std::string_view value;
-    };
 
+        XmlAttribute *next = nullptr;
+    };
     struct XmlAttributes {
         std::vector<XmlAttribute> attributes;
 
@@ -106,12 +132,10 @@ public:
 
     XmlNode(Type type,
             std::string_view name,
-            std::vector<XmlNode> children = {},
             XmlAttributes attributes = {},
             std::string_view content = "")
         : _type(type)
         , _name(name)
-        , _children(std::move(children))
         , _attributes(std::move(attributes))
         , _content(content) {}
 
@@ -123,16 +147,24 @@ public:
         return _attributes;
     }
 
-    void add_child(XmlNode child) {
-        _children.push_back(std::move(child));
+    void children(XmlNode *firstChild) {
+        if (_children) {
+            throw std::runtime_error{"Xml error: Child is already set"};
+        }
+        _children = firstChild;
+    }
+
+    void next(XmlNode *next) {
+        _next = next;
     }
 
 private:
     Type _type;
     std::string_view _name;
-    std::vector<XmlNode> _children;
     std::string_view _content;
     XmlAttributes _attributes;
+    XmlNode *_children = nullptr;
+    XmlNode *_next = nullptr;
 };
 
 void xml_node_to_string(const XmlNode &node,

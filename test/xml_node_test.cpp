@@ -28,9 +28,11 @@ TYPED_TEST(XmlTest, ParseSimpleXml) {
 
     using XmlT = typename TestFixture::XmlT;
 
-    auto root = parse(input);
+    auto root2 = parse(input);
+    auto root = root2.root();
     std::cout << root << "\n";
 
+    EXPECT_TRUE(root2.file->isInFile(root.name()));
     EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
     EXPECT_EQ(root.name(), "root") << root;
 
@@ -67,7 +69,8 @@ TYPED_TEST(XmlTest, ParseComplexXml) {
 
     using XmlT = typename TestFixture::XmlT;
 
-    auto root = parse(input);
+    auto root2 = parse(input);
+    auto root = root2.root();
 
     std::cout << root << "\n";
 

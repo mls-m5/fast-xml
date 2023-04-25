@@ -28,7 +28,6 @@ public:
         }
 
         operator bool() const {
-            //            return position <= content.size();
             return status;
         };
 
@@ -51,6 +50,8 @@ public:
         _content = std::move(ss).str();
     }
 
+    ~XmlFile() = default;
+
     XmlFile() = delete;
     XmlFile(const XmlFile &) = delete;
     XmlFile(XmlFile &&) = delete;
@@ -63,6 +64,11 @@ public:
 
     Reader reader() const {
         return Reader{_content};
+    }
+
+    bool isInFile(std::string_view str) {
+        return str.data() >= _content.data() &&
+               str.data() + str.size() < _content.data() + _content.size();
     }
 
 private:

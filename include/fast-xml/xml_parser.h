@@ -1,20 +1,54 @@
 #pragma once
 
+#include "tokentype.h"
 #include "xml_tokenizer.h"
 #include "xmlfile.h"
 #include "xmlnode.h"
 #include "xmltoken.h"
 #include <iostream>
+#include <memory>
+#include <ostream>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
-XmlNode parse(std::vector<XmlToken>::const_iterator &it,
-              std::vector<XmlToken>::const_iterator end) {
+struct XmlRoot {
+private:
+    std::vector<XmlNode> nodes;
+    std::vector<XmlNode::XmlAttribute> attributes;
+
+public:
+    void reserve(int n, int a) {
+        nodes.reserve(n);
+        attributes.reserve(a);
+    }
+
+    XmlNode &createNode(XmlNode::Type type, std::string_view content) {
+        nodes.emplace_back(type, content);
+        return nodes.back();
+    }
+
+    // This is required to be saved since the tokens' and nodes' string_views
+    // points to the content
+    std::shared_ptr<XmlFile> file;
+
+    auto &root() const {
+        return nodes.front();
+    }
+};
+
+std::ostream &operator<<(std::ostream &os, const XmlRoot &x) {
+    return os << x.root();
+}
+
+XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
+               std::vector<XmlToken>::const_iterator end,
+               XmlRoot &root) {
 
     if (it->type() == TokenType::TEXT_CONTENT) {
-        XmlNode node(XmlNode::Type::TEXT_CONTENT, "");
+        XmlNode &node = root.createNode(XmlNode::Type::TEXT_CONTENT, {});
         node.content(it->str());
         ++it;
         return node;
@@ -24,8 +58,11 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
         throw std::runtime_error{"expected opening tag"};
     }
 
-    XmlNode node(XmlNode::Type::ELEMENT, "");
+    XmlNode &node = root.createNode(XmlNode::Type::ELEMENT, "");
 
+    if (!root.file->isInFile(it->str())) {
+        throw std::runtime_error{"str is not in file"};
+    }
     node.name(it->str());
     ++it;
 
@@ -42,12 +79,24 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
         ++it;
     }
 
+    XmlNode *lastChild = nullptr;
+
+    auto addChild = [&](XmlNode *child) {
+        if (lastChild) {
+            lastChild->next(child);
+            lastChild = child;
+            return;
+        }
+        node.children(child);
+        lastChild = child;
+    };
+
     while (it != end) {
         const auto &token = *it;
         if (token.type() == TokenType::ELEMENT_OPEN) {
             // Recursively parse the children
             while (it != end && it->type() != TokenType::ELEMENT_CLOSE) {
-                node.add_child(parse(it, end));
+                addChild(&parse(it, end, root));
             }
             return node;
         }
@@ -56,7 +105,7 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
             return node;
         }
         else if (token.type() == TokenType::TEXT_CONTENT) {
-            node.add_child(parse(it, end));
+            addChild(&parse(it, end, root));
         }
         else {
             throw std::runtime_error{"Invalid token"};
@@ -66,11 +115,30 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-XmlNode parse(std::istream &input) {
-    auto file = XmlFile{input};
-    auto reader = file.reader();
-    std::vector<XmlToken> tokens = tokenize(reader);
-    auto it = tokens.cbegin();
+XmlRoot parse(std::istream &input) {
+    int numNodes = 0;
+    int numAttributes = 0;
 
-    return parse(it, tokens.cend());
+    auto root = XmlRoot{};
+
+    root.file = std::make_shared<XmlFile>(input);
+
+    auto reader = root.file->reader();
+    std::vector<XmlToken> tokens = tokenize(reader);
+
+    for (auto &token : tokens) {
+        if (token.type() == TokenType::ELEMENT_OPEN ||
+            token.type() == TokenType::TEXT_CONTENT) {
+            ++numNodes;
+        }
+        else if (token.type() == TokenType::ATTRIBUTE_NAME) {
+            ++numAttributes;
+        }
+    }
+
+    root.reserve(numNodes, numAttributes);
+
+    auto it = tokens.cbegin();
+    auto node = parse(it, tokens.cend(), root);
+    return root;
 }
