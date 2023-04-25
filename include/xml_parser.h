@@ -1,5 +1,6 @@
 // xml_parser.h
 #include "xmltoken.h"
+#include <cctype>
 #include <istream>
 #include <vector>
 
@@ -23,10 +24,15 @@ std::vector<XmlToken> tokenize(std::istream &input) {
 
     State state = State::TEXT;
 
+    while (std::isspace(input.peek())) {
+        input.get(ch);
+    }
+
     while (input.get(ch)) {
         switch (state) {
         case State::TEXT:
             if (ch == '<') {
+                current_token = strip(std::move(current_token));
                 if (!current_token.empty()) {
                     tokens.emplace_back(TokenType::TEXT_CONTENT,
                                         current_token,
@@ -65,6 +71,12 @@ std::vector<XmlToken> tokenize(std::istream &input) {
                                     col - current_token.size());
                 current_token.clear();
                 state = State::TEXT;
+
+                if (current_token.empty()) {
+                    while (input && std::isspace(input.peek())) {
+                        input.get(ch);
+                    }
+                }
             }
             else {
                 current_token += ch;
@@ -88,6 +100,12 @@ std::vector<XmlToken> tokenize(std::istream &input) {
                     current_token.clear();
                 }
                 state = State::TEXT;
+
+                if (current_token.empty()) {
+                    while (input && std::isspace(input.peek())) {
+                        input.get(ch);
+                    }
+                }
             }
             else {
                 current_token += ch;
@@ -141,6 +159,9 @@ std::vector<XmlToken> tokenize(std::istream &input) {
 
     if (!current_token.empty()) {
         tokens.emplace_back(TokenType::TEXT_CONTENT, current_token, line, col);
+        if (tokens.back().str().empty()) {
+            tokens.pop_back();
+        }
     }
 
     return tokens;
