@@ -1,20 +1,10 @@
 #pragma once
 
+#include "tokentype.h"
 #include "xml_utils.h"
 #include <ostream>
 #include <string>
 #include <string_view>
-
-enum class TokenType {
-    UNKNOWN,         // Unknown token type
-    ELEMENT_OPEN,    // <element>
-    ELEMENT_CLOSE,   // </element>
-    ATTRIBUTE_NAME,  // attr
-    ATTRIBUTE_VALUE, // "value"
-    TEXT_CONTENT,    // text between elements
-    COMMENT,         // <!-- comment -->
-    CDATA            // <![CDATA[data]]>
-};
 
 class XmlToken {
 public:
@@ -40,35 +30,6 @@ private:
     std::size_t _col;
 };
 
-std::string_view to_string(TokenType type) {
-    switch (type) {
-    case TokenType::UNKNOWN:
-        return "UNKNOWN";
-    case TokenType::ELEMENT_OPEN:
-        return "ELEMENT_OPEN";
-    case TokenType::ELEMENT_CLOSE:
-        return "ELEMENT_CLOSE";
-    case TokenType::ATTRIBUTE_NAME:
-        return "ATTRIBUTE_NAME";
-    case TokenType::ATTRIBUTE_VALUE:
-        return "ATTRIBUTE_VALUE";
-    case TokenType::TEXT_CONTENT:
-        return "TEXT_CONTENT";
-    case TokenType::COMMENT:
-        return "COMMENT";
-    case TokenType::CDATA:
-        return "CDATA";
-    default:
-        return "UNKNOWN";
-    }
-}
-
-std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
-    os << "('" << token.str() << "', " << to_string(token.type()) << ", "
-       << token.line() << ", " << token.col() << ")";
-    return os;
-}
-
 std::string join_tokens(const std::vector<XmlToken> &tokens) {
     std::string result;
     for (const auto &token : tokens) {
@@ -79,6 +40,12 @@ std::string join_tokens(const std::vector<XmlToken> &tokens) {
     return result;
 }
 
+std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
+    os << "('" << token.str() << "', " << to_string(token.type()) << ", "
+       << token.line() << ", " << token.col() << ")";
+    return os;
+}
+
 inline XmlToken::XmlToken(TokenType type,
                           std::string value,
                           std::size_t line,
@@ -87,11 +54,6 @@ inline XmlToken::XmlToken(TokenType type,
     , _value(strip(value))
     , _line(line)
     , _col(col) {}
-
-inline std::ostream &operator<<(std::ostream &os, TokenType type) {
-    os << to_string(type);
-    return os;
-}
 
 inline std::string_view XmlToken::str() const {
     return _value;

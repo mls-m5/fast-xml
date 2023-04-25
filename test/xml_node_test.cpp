@@ -1,17 +1,36 @@
 // xml_parser_test.cpp
 #include "fast-xml/xml_parser.h"
+#include "gtest/gtest-typed-test.h"
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
+#include <string>
 
-TEST(XmlParserTest, ParseSimpleXml) {
+namespace {
+
+template <typename T>
+class XmlTest : public ::testing::Test {
+protected:
+    using XmlT = XmlNode;
+};
+
+// using XmlT = XmlNode<std::string>;
+
+} // namespace
+
+using MyTypes = ::testing::Types<std::string /*, ClassB*/>;
+TYPED_TEST_SUITE(XmlTest, MyTypes);
+
+TYPED_TEST(XmlTest, ParseSimpleXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
     std::istringstream input(xml_input);
 
-    XmlNode root = parse(input);
+    using XmlT = typename TestFixture::XmlT;
+
+    auto root = parse(input);
     std::cout << root << "\n";
 
-    EXPECT_EQ(root.type(), XmlNode::Type::ELEMENT) << root;
+    EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
     EXPECT_EQ(root.name(), "root") << root;
 
     const auto &attributes = root.attributes();
@@ -22,7 +41,7 @@ TEST(XmlParserTest, ParseSimpleXml) {
     EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
 
-TEST(XmlParserTest, ParseComplexXml) {
+TYPED_TEST(XmlTest, ParseComplexXml) {
     std::string xml_input = R"(
 <catalog>
     <book id="bk101" edition="first">
@@ -45,18 +64,20 @@ TEST(XmlParserTest, ParseComplexXml) {
 )";
     std::istringstream input(xml_input);
 
-    XmlNode root = parse(input);
+    using XmlT = typename TestFixture::XmlT;
+
+    auto root = parse(input);
 
     std::cout << root << "\n";
 
-    EXPECT_EQ(root.type(), XmlNode::Type::ELEMENT);
+    EXPECT_EQ(root.type(), XmlT::Type::ELEMENT);
     EXPECT_EQ(root.name(), "catalog");
 
     ASSERT_EQ(root.attributes().size(), 0u);
 
     auto book_iter = root.begin();
     ASSERT_NE(book_iter, root.end());
-    EXPECT_EQ(book_iter->type(), XmlNode::Type::ELEMENT);
+    EXPECT_EQ(book_iter->type(), XmlT::Type::ELEMENT);
     EXPECT_EQ(book_iter->name(), "book");
 
     const auto &book_attributes = book_iter->attributes();
@@ -68,13 +89,13 @@ TEST(XmlParserTest, ParseComplexXml) {
 
     auto child_iter = book_iter->begin();
     ASSERT_NE(child_iter, book_iter->end());
-    EXPECT_EQ(child_iter->type(), XmlNode::Type::ELEMENT);
+    EXPECT_EQ(child_iter->type(), XmlT::Type::ELEMENT);
     EXPECT_EQ(child_iter->name(), "author");
     EXPECT_EQ(child_iter->begin()->content(), "Gambardella, Matthew");
 
     ++child_iter;
     ASSERT_NE(child_iter, book_iter->end());
-    EXPECT_EQ(child_iter->type(), XmlNode::Type::ELEMENT);
+    EXPECT_EQ(child_iter->type(), XmlT::Type::ELEMENT);
     EXPECT_EQ(child_iter->name(), "title");
     EXPECT_EQ(child_iter->begin()->content(), "XML Developer's Guide");
 
