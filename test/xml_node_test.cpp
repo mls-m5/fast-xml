@@ -1,32 +1,16 @@
-// xml_parser_test.cpp
 #include "fast-xml/slow_xml_parser.h"
 #include "fast-xml/xml_parser.h"
-#include "gtest/gtest-typed-test.h"
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-namespace {
+using XmlT = XmlNode;
 
-template <typename T>
-class XmlTest : public ::testing::Test {
-protected:
-    using XmlT = XmlNode;
-};
-
-// using XmlT = XmlNode<std::string>;
-
-} // namespace
-
-using MyTypes = ::testing::Types<std::string /*, ClassB*/>;
-TYPED_TEST_SUITE(XmlTest, MyTypes);
-
-TYPED_TEST(XmlTest, ParseSimpleXml) {
+TEST(XmlTest, ParseSimpleXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
     std::istringstream input(xml_input);
-
-    using XmlT = typename TestFixture::XmlT;
 
     auto root2 = parse(input);
     auto root = root2.root();
@@ -37,14 +21,19 @@ TYPED_TEST(XmlTest, ParseSimpleXml) {
     EXPECT_EQ(root.name(), "root") << root;
 
     const auto &attributes = root.attributes();
-    ASSERT_EQ(attributes.size(), 1u);
-    EXPECT_EQ(attributes[0].name, "attr");
-    EXPECT_EQ(attributes[0].value, "value");
+
+    int count = 0;
+    for (auto &a : attributes) {
+        ++count;
+    }
+    ASSERT_EQ(count, 1u);
+    EXPECT_EQ(attributes.front().name, "attr");
+    EXPECT_EQ(attributes.front().value, "value");
 
     EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
 
-TYPED_TEST(XmlTest, ParseComplexXml) {
+TEST(XmlTest, ParseComplexXml) {
     std::string xml_input = R"(
 <catalog>
     <book id="bk101" edition="first">
@@ -67,8 +56,6 @@ TYPED_TEST(XmlTest, ParseComplexXml) {
 )";
     std::istringstream input(xml_input);
 
-    using XmlT = typename TestFixture::XmlT;
-
     auto root2 = parse(input);
     auto root = root2.root();
 
@@ -86,10 +73,8 @@ TYPED_TEST(XmlTest, ParseComplexXml) {
 
     const auto &book_attributes = book_iter->attributes();
     ASSERT_EQ(book_attributes.size(), 2u);
-    EXPECT_EQ(book_attributes[0].name, "id");
-    EXPECT_EQ(book_attributes[0].value, "bk101");
-    EXPECT_EQ(book_attributes[1].name, "edition");
-    EXPECT_EQ(book_attributes[1].value, "first");
+    EXPECT_EQ(book_attributes.at("id").str(), "bk101");
+    EXPECT_EQ(book_attributes.at("edition").str(), "first");
 
     auto child_iter = book_iter->begin();
     ASSERT_NE(child_iter, book_iter->end());

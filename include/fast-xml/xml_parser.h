@@ -30,6 +30,12 @@ public:
         return nodes.back();
     }
 
+    XmlNode::XmlAttribute &createAttribute(std::string_view name,
+                                           std::string_view value) {
+        attributes.push_back({name, value});
+        return attributes.back();
+    }
+
     // This is required to be saved since the tokens' and nodes' string_views
     // points to the content
     std::shared_ptr<XmlFile> file;
@@ -66,6 +72,8 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
     node.name(it->str());
     ++it;
 
+    XmlNode::XmlAttribute *lastAttribute = nullptr;
+
     // Parse the attributes
     while (it != end && it->type() == TokenType::ATTRIBUTE_NAME) {
         auto attribute_name = it->str();
@@ -75,7 +83,14 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
         }
         ++it;
         auto attribute_value = it->str();
-        node.attributes().push_back({attribute_name, attribute_value});
+        auto &attr = root.createAttribute(attribute_name, attribute_value);
+        if (lastAttribute) {
+            lastAttribute->next = &attr;
+        }
+        else {
+            node.attributes().attributes(&attr);
+        }
+        lastAttribute = &attr;
         ++it;
     }
 

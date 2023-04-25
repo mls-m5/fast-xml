@@ -67,21 +67,41 @@ public:
         std::string_view value;
 
         XmlAttribute *next = nullptr;
+
+        std::string_view str() const {
+            return value;
+        }
     };
     struct XmlAttributes {
-        std::vector<XmlAttribute> attributes;
 
-        XmlAttribute *find(std::string_view name) {
-            for (auto &attribute : attributes) {
-                if (attribute.name == name) {
-                    return &attribute;
-                }
+        struct Iterator {
+            const XmlAttribute *ptr = 0;
+
+            void operator++() {
+                ptr = ptr->next;
             }
-            return nullptr;
-        }
+
+            bool operator==(const Iterator &other) const {
+                return ptr == other.ptr;
+            }
+
+            bool operator!=(const Iterator &other) const {
+                return ptr != other.ptr;
+            }
+
+            const XmlAttribute &operator*() {
+                return *ptr;
+            }
+
+            const XmlAttribute *operator->() {
+                return ptr;
+            }
+        };
+
+        XmlAttribute *_attributes = nullptr;
 
         const XmlAttribute *find(std::string_view name) const {
-            for (const auto &attribute : attributes) {
+            for (const auto &attribute : *this) {
                 if (attribute.name == name) {
                     return &attribute;
                 }
@@ -89,54 +109,55 @@ public:
             return nullptr;
         }
 
-        XmlAttribute &operator[](std::size_t index) {
-            return attributes[index];
-        }
-
-        const XmlAttribute &operator[](std::size_t index) const {
-            return attributes[index];
-        }
-
-        std::size_t size() const {
-            return attributes.size();
-        }
-
-        void clear() {
-            attributes.clear();
+        const XmlAttribute &at(std::string_view name) const {
+            if (auto f = find(name)) {
+                return *f;
+            }
+            throw std::out_of_range{"could not find attribute " +
+                                    std::string{name}};
         }
 
         bool empty() const {
-            return attributes.empty();
+            return !_attributes;
         }
 
-        void push_back(XmlAttribute attribute) {
-            attributes.push_back(std::move(attribute));
+        // Point first child
+        void attributes(XmlAttribute *attribute) {
+            _attributes = attribute;
         }
 
-        auto begin() {
-            return attributes.begin();
+        Iterator begin() {
+            return Iterator{_attributes};
         }
 
-        auto end() {
-            return attributes.end();
+        Iterator end() {
+            return Iterator{nullptr};
         }
 
-        auto begin() const {
-            return attributes.begin();
+        Iterator begin() const {
+            return Iterator{_attributes};
         }
 
-        auto end() const {
-            return attributes.end();
+        Iterator end() const {
+            return Iterator{nullptr};
+        }
+
+        const XmlAttribute &front() const {
+            return *begin();
+        }
+
+        size_t size() const {
+            auto count = size_t{};
+            for (auto &attr : *this) {
+                ++count;
+            }
+            return count;
         }
     };
 
-    XmlNode(Type type,
-            std::string_view name,
-            XmlAttributes attributes = {},
-            std::string_view content = "")
+    XmlNode(Type type, std::string_view name, std::string_view content = "")
         : _type(type)
         , _name(name)
-        , _attributes(std::move(attributes))
         , _content(content) {}
 
     const XmlAttributes &attributes() const {

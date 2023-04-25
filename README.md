@@ -4,7 +4,7 @@
 - [x] Build slow parser (generic syntax)
    - [x] Tokenizer
    - [x] Parser
-- [ ] Build fast parser
+- [x] Build fast parser
    - [ ] Memory hacks
 - [ ] Compare
 
