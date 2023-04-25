@@ -26,13 +26,7 @@ public:
         , _col(col) {}
 
     std::string_view str() const {
-        switch (_type) {
-        case TokenType::ATTRIBUTE_NAME:
-        case TokenType::ATTRIBUTE_VALUE:
-            return std::string_view(_value);
-        default:
-            return std::string_view();
-        }
+        return _value;
     }
 
     std::size_t line() const {
@@ -41,6 +35,10 @@ public:
 
     std::size_t col() const {
         return _col;
+    }
+
+    TokenType type() const {
+        return _type;
     }
 
 private:
