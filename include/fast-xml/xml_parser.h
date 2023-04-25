@@ -77,9 +77,11 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
     // Parse the attributes
     while (it != end && it->type() == TokenType::ATTRIBUTE_NAME) {
         auto attribute_name = it->str();
-        if ((it + 1) == end || (it + 1)->type() != TokenType::ATTRIBUTE_VALUE) {
+        auto next = it + 1;
+        if (next == end || next->type() != TokenType::ATTRIBUTE_VALUE) {
             throw std::runtime_error(
-                "Invalid XML format: Missing attribute value");
+                "Invalid XML format: Missing attribute value at line " +
+                std::to_string(it->line()));
         }
         ++it;
         auto attribute_value = it->str();

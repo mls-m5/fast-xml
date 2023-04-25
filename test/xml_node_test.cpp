@@ -9,7 +9,8 @@
 using XmlT = XmlNode;
 
 TEST(XmlTest, ParseSimpleXml) {
-    std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
+    std::string xml_input = "<root attr=\"value\">Hello, world!<empty"
+                            "/><empty attr=\"v\"/></root>";
     std::istringstream input(xml_input);
 
     auto root2 = parse(input);
@@ -22,11 +23,7 @@ TEST(XmlTest, ParseSimpleXml) {
 
     const auto &attributes = root.attributes();
 
-    int count = 0;
-    for (auto &a : attributes) {
-        ++count;
-    }
-    ASSERT_EQ(count, 1u);
+    ASSERT_EQ(attributes.size(), 1u);
     EXPECT_EQ(attributes.front().name, "attr");
     EXPECT_EQ(attributes.front().value, "value");
 

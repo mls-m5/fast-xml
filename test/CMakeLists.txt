@@ -27,3 +27,7 @@ add_xml_parser_test(xml_tokenizer_test xml_tokenizer_test.cpp)
 add_xml_parser_test(xml_node_test xml_node_test.cpp)
 
 file (COPY uggly.xml DESTINATION .)
+
+add_executable(test_data_generator test_data_generator.cpp)
+
+target_link_libraries(test_data_generator PRIVATE xml_parser_interface)

@@ -1,8 +1,11 @@
 // xml_parser.h
+#include "tokentype.h"
 #include "xmlfile.h"
 #include "xmltoken.h"
 #include <cctype>
 #include <istream>
+#include <stdexcept>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -88,11 +91,44 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
                     }
                 }
             }
+            else if (*ch == '/') {
+                //                input.get(ch);
+                //                if (*ch != '>') {
+                //                    throw std::runtime_error{"expected '>' got
+                //                    " +
+                //                                             std::string{ch,
+                //                                             1}};
+                //                }
+                //                tokens.emplace_back(TokenType::ELEMENT_CLOSE,
+                //                                    "",
+                //                                    line,
+                //                                    col -
+                //                                    current_token.size());
+                //                state = State::TEXT;
+
+                tokens.emplace_back(TokenType::ELEMENT_OPEN,
+                                    current_token,
+                                    line,
+                                    col - current_token.size());
+                current_token = {};
+
+                if (current_token.empty()) {
+                    while (input && std::isspace(input.peek())) {
+                        input.get(ch);
+                    }
+                }
+
+                state = State::CLOSE_TAG;
+                break;
+            }
             else {
                 addCh(current_token, ch);
             }
             break;
         case State::ATTRIBUTE_NAME:
+            if (std::isspace(*ch)) {
+                break;
+            }
             if (*ch == '=') {
                 tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
                                     current_token,
@@ -116,6 +152,18 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
                         input.get(ch);
                     }
                 }
+            }
+            else if (*ch == '/') {
+                input.get(ch);
+                if (*ch != '>') {
+                    throw std::runtime_error{"expected '>' got " +
+                                             std::string{ch, 1}};
+                }
+                tokens.emplace_back(TokenType::ELEMENT_CLOSE,
+                                    "",
+                                    line,
+                                    col - current_token.size());
+                state = State::TEXT;
             }
             else {
                 addCh(current_token, ch);
