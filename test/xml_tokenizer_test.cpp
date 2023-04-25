@@ -6,7 +6,9 @@
 TEST(XmlParserTest, TokenizeBasicXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
     std::istringstream input(xml_input);
-    std::vector<XmlToken> tokens = tokenize(input);
+    auto file = XmlFile{input};
+    auto reader = file.reader();
+    std::vector<XmlToken> tokens = tokenize(reader);
 
     std::vector<XmlToken> expected_tokens = {
         XmlToken(TokenType::ELEMENT_OPEN, "root", 1, 1),
@@ -18,7 +20,7 @@ TEST(XmlParserTest, TokenizeBasicXml) {
     // Output the received tokens for debugging
     std::cout << "Received tokens:" << std::endl;
     for (const auto &token : tokens) {
-        std::cout << token;
+        std::cout << token << "\n";
     }
 
     ASSERT_EQ(tokens.size(), expected_tokens.size());
@@ -50,7 +52,9 @@ TEST(XmlParserTest, MoreComplexExample) {
 </catalog>
 )");
 
-    std::vector<XmlToken> tokens = tokenize(input);
+    auto file = XmlFile{input};
+    auto reader = file.reader();
+    std::vector<XmlToken> tokens = tokenize(reader);
 
     std::vector<XmlToken> expected_tokens = {
         XmlToken(TokenType::ELEMENT_OPEN, "catalog", 2, 1),

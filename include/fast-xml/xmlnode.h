@@ -129,9 +129,9 @@ public:
 
 private:
     Type _type;
-    std::string _name;
+    std::string_view _name;
     std::vector<XmlNode> _children;
-    std::string _content;
+    std::string_view _content;
     XmlAttributes _attributes;
 };
 

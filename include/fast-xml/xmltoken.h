@@ -9,7 +9,7 @@
 class XmlToken {
 public:
     XmlToken(TokenType type = TokenType::UNKNOWN,
-             std::string value = "",
+             std::string_view value = {},
              std::size_t line = 0,
              std::size_t col = 0);
 
@@ -25,7 +25,7 @@ public:
 
 private:
     TokenType _type;
-    std::string _value;
+    std::string_view _value;
     std::size_t _line;
     std::size_t _col;
 };
@@ -47,7 +47,7 @@ std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
 }
 
 inline XmlToken::XmlToken(TokenType type,
-                          std::string value,
+                          std::string_view value,
                           std::size_t line,
                           std::size_t col)
     : _type(type)

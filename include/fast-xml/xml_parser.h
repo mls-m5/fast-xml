@@ -1,6 +1,7 @@
 #pragma once
 
 #include "xml_tokenizer.h"
+#include "xmlfile.h"
 #include "xmlnode.h"
 #include "xmltoken.h"
 #include <iostream>
@@ -66,7 +67,9 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
 }
 
 XmlNode parse(std::istream &input) {
-    std::vector<XmlToken> tokens = tokenize(input);
+    auto file = XmlFile{input};
+    auto reader = file.reader();
+    std::vector<XmlToken> tokens = tokenize(reader);
     auto it = tokens.cbegin();
 
     return parse(it, tokens.cend());

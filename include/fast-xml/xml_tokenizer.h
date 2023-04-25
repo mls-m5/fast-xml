@@ -1,14 +1,16 @@
 // xml_parser.h
+#include "xmlfile.h"
 #include "xmltoken.h"
 #include <cctype>
 #include <istream>
+#include <string_view>
 #include <vector>
 
-std::vector<XmlToken> tokenize(std::istream &input) {
+std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     std::vector<XmlToken> tokens;
-    std::string current_token;
+    std::string_view current_token;
     std::size_t line = 1, col = 1;
-    char ch;
+    const char *ch = nullptr;
 
     enum class State {
         TEXT,
@@ -28,48 +30,56 @@ std::vector<XmlToken> tokenize(std::istream &input) {
         input.get(ch);
     }
 
+    auto addCh = [](std::string_view &sv, const char *ch) {
+        if (sv.empty()) {
+            sv = std::string_view{ch, 1};
+            return;
+        }
+        sv = std::string_view{sv.data(), sv.size() + 1};
+    };
+
     while (input.get(ch)) {
         switch (state) {
         case State::TEXT:
-            if (ch == '<') {
+            if (*ch == '<') {
                 current_token = strip(std::move(current_token));
                 if (!current_token.empty()) {
                     tokens.emplace_back(TokenType::TEXT_CONTENT,
                                         current_token,
                                         line,
                                         col - current_token.size());
-                    current_token.clear();
+                    current_token = {};
                 }
                 state = State::OPEN_TAG;
             }
             else {
-                current_token += ch;
+                addCh(current_token, ch);
             }
             break;
         case State::OPEN_TAG:
-            if (ch == '/') {
+            if (*ch == '/') {
                 state = State::CLOSE_TAG;
             }
-            else if (std::isalnum(ch)) {
-                current_token += ch;
+            else if (std::isalnum(*ch)) {
+                addCh(current_token, ch);
                 state = State::TAG_NAME;
             }
             break;
         case State::TAG_NAME:
-            if (ch == ' ') {
+            if (*ch == ' ') {
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
                                     line,
                                     col - current_token.size());
-                current_token.clear();
+                current_token = {};
                 state = State::ATTRIBUTE_NAME;
             }
-            else if (ch == '>') {
+            else if (*ch == '>') {
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
                                     line,
                                     col - current_token.size());
-                current_token.clear();
+                current_token = {};
                 state = State::TEXT;
 
                 if (current_token.empty()) {
@@ -79,25 +89,25 @@ std::vector<XmlToken> tokenize(std::istream &input) {
                 }
             }
             else {
-                current_token += ch;
+                addCh(current_token, ch);
             }
             break;
         case State::ATTRIBUTE_NAME:
-            if (ch == '=') {
+            if (*ch == '=') {
                 tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
                                     current_token,
                                     line,
                                     col - current_token.size());
-                current_token.clear();
+                current_token = {};
                 state = State::ATTRIBUTE_VALUE_START;
             }
-            else if (ch == '>') {
+            else if (*ch == '>') {
                 if (!current_token.empty()) {
                     tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
                                         current_token,
                                         line,
                                         col - current_token.size());
-                    current_token.clear();
+                    current_token = {};
                 }
                 state = State::TEXT;
 
@@ -108,40 +118,40 @@ std::vector<XmlToken> tokenize(std::istream &input) {
                 }
             }
             else {
-                current_token += ch;
+                addCh(current_token, ch);
             }
             break;
         case State::ATTRIBUTE_VALUE_START:
-            if (ch == '\"') {
+            if (*ch == '\"') {
                 state = State::ATTRIBUTE_VALUE;
             }
             break;
         case State::ATTRIBUTE_VALUE:
-            if (ch == '\"') {
+            if (*ch == '\"') {
                 tokens.emplace_back(TokenType::ATTRIBUTE_VALUE,
                                     current_token,
                                     line,
                                     col - current_token.size());
-                current_token.clear();
+                current_token = {};
                 state = State::ATTRIBUTE_NAME;
             }
             else {
-                current_token += ch;
+                addCh(current_token, ch);
             }
             break;
         case State::CLOSE_TAG:
-            if (ch == '>') {
+            if (*ch == '>') {
                 state = State::TEXT;
                 tokens.emplace_back(
                     TokenType::ELEMENT_CLOSE, current_token, line, col);
-                current_token.clear();
+                current_token = {};
             }
             else {
-                current_token += ch;
+                addCh(current_token, ch);
             }
             break;
         case State::COMMENT:
-            if (ch == '-') {
+            if (*ch == '-') {
                 // Ignore comments for now
             }
             else {
@@ -153,7 +163,7 @@ std::vector<XmlToken> tokenize(std::istream &input) {
             break;
         }
 
-        if (ch == '\n') {
+        if (*ch == '\n') {
             line++;
             col = 1;
         }

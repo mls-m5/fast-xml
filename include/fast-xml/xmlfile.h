@@ -6,13 +6,18 @@
 #include <string_view>
 
 class XmlFile {
+public:
     class Reader {
     public:
-        int get() {
+        Reader &get(const char *&ch) {
             if (!*this) {
-                return 0;
+                return *this;
             }
-            return content.at(position++);
+            status = position < content.size();
+            if (status) {
+                ch = &content.at(position++);
+            }
+            return *this;
         }
 
         int peek() const {
@@ -23,7 +28,8 @@ class XmlFile {
         }
 
         operator bool() const {
-            return position < content.size();
+            //            return position <= content.size();
+            return status;
         };
 
         Reader(std::string_view content)
@@ -32,6 +38,7 @@ class XmlFile {
     private:
         int position = 0;
         std::string_view content;
+        bool status = true;
     };
 
 public:
