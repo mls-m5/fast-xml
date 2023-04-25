@@ -132,7 +132,12 @@ std::vector<XmlToken> tokenize(std::istream &input) {
         case State::CLOSE_TAG:
             if (ch == '>') {
                 state = State::TEXT;
-                tokens.emplace_back(TokenType::ELEMENT_CLOSE, "", line, col);
+                tokens.emplace_back(
+                    TokenType::ELEMENT_CLOSE, current_token, line, col);
+                current_token.clear();
+            }
+            else {
+                current_token += ch;
             }
             break;
         case State::COMMENT:
