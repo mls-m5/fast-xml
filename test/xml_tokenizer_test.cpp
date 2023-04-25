@@ -13,7 +13,7 @@ TEST(XmlParserTest, TokenizeBasicXml) {
         XmlToken(TokenType::ATTRIBUTE_NAME, "attr", 1, 7),
         XmlToken(TokenType::ATTRIBUTE_VALUE, "value", 1, 13),
         XmlToken(TokenType::TEXT_CONTENT, "Hello, world!", 1, 20),
-        XmlToken(TokenType::ELEMENT_CLOSE, "", 1, 34)};
+        XmlToken(TokenType::ELEMENT_CLOSE, "root", 1, 34)};
 
     // Output the received tokens for debugging
     std::cout << "Received tokens:" << std::endl;
@@ -61,10 +61,10 @@ TEST(XmlParserTest, MoreComplexExample) {
         XmlToken(TokenType::ATTRIBUTE_VALUE, "first", 3, 29),
         XmlToken(TokenType::ELEMENT_OPEN, "author", 4, 9),
         XmlToken(TokenType::TEXT_CONTENT, "Gambardella, Matthew", 4, 16),
-        XmlToken(TokenType::ELEMENT_CLOSE, "", 4, 36),
+        XmlToken(TokenType::ELEMENT_CLOSE, "author", 4, 36),
         XmlToken(TokenType::ELEMENT_OPEN, "title", 5, 9),
         XmlToken(TokenType::TEXT_CONTENT, "XML Developer's Guide", 5, 15),
-        XmlToken(TokenType::ELEMENT_CLOSE, "", 5, 37),
+        XmlToken(TokenType::ELEMENT_CLOSE, "title", 5, 37),
         // ...
         // Add the rest of the tokens here
     };

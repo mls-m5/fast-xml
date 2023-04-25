@@ -88,6 +88,11 @@ inline XmlToken::XmlToken(TokenType type,
     , _line(line)
     , _col(col) {}
 
+inline std::ostream &operator<<(std::ostream &os, TokenType type) {
+    os << to_string(type);
+    return os;
+}
+
 inline std::string_view XmlToken::str() const {
     return _value;
 }

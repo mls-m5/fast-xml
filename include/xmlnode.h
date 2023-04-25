@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -12,6 +13,10 @@ public:
         return _type;
     }
 
+    void name(std::string_view name) {
+        _name = std::string{name};
+    }
+
     std::string_view name() const {
         return _name;
     }
@@ -22,6 +27,10 @@ public:
 
     std::vector<XmlNode>::const_iterator end() const {
         return _children.cend();
+    }
+
+    void content(std::string_view value) {
+        _content = std::string{value};
     }
 
     std::string_view content() const {
@@ -77,6 +86,22 @@ public:
         void push_back(XmlAttribute attribute) {
             attributes.push_back(std::move(attribute));
         }
+
+        auto begin() {
+            return attributes.begin();
+        }
+
+        auto end() {
+            return attributes.end();
+        }
+
+        auto begin() const {
+            return attributes.begin();
+        }
+
+        auto end() const {
+            return attributes.end();
+        }
     };
 
     XmlNode(Type type,
@@ -109,3 +134,45 @@ private:
     std::string _content;
     XmlAttributes _attributes;
 };
+
+void xml_node_to_string(const XmlNode &node,
+                        std::ostream &stream,
+                        std::size_t indent = 0) {
+    if (node.type() == XmlNode::Type::ELEMENT) {
+        // Print the opening tag
+        stream << std::string(indent, ' ') << "<" << node.name();
+
+        // Print the attributes, if any
+        const auto &attributes = node.attributes();
+        for (const auto &attribute : attributes) {
+            stream << " " << attribute.name << "=\"" << attribute.value << "\"";
+        }
+
+        // Print the closing tag and content
+        if (node.content().empty() && node.begin() == node.end()) {
+            // Empty tag
+            stream << "/>\n";
+        }
+        else {
+            // Non-empty tag
+            stream << ">\n";
+
+            // Print the children
+            for (const auto &child : node) {
+                xml_node_to_string(child, stream, indent + 2);
+            }
+
+            // Print the closing tag
+            stream << std::string(indent, ' ') << "</" << node.name() << ">\n";
+        }
+    }
+    else if (node.type() == XmlNode::Type::TEXT_CONTENT) {
+        // Print the content
+        stream << std::string(indent, ' ') << node.content() << "\n";
+    }
+}
+
+std::ostream &operator<<(std::ostream &os, const XmlNode &node) {
+    xml_node_to_string(node, os);
+    return os;
+}

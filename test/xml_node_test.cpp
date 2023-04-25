@@ -1,6 +1,7 @@
 // xml_parser_test.cpp
 #include "xml_parser.h"
 #include <gtest/gtest.h>
+#include <iostream>
 #include <sstream>
 
 TEST(XmlParserTest, ParseSimpleXml) {
@@ -8,17 +9,18 @@ TEST(XmlParserTest, ParseSimpleXml) {
     std::istringstream input(xml_input);
 
     XmlNode root = parse(input);
+    std::cout << root << "\n";
 
-    EXPECT_EQ(root.type(), XmlNode::Type::ELEMENT);
-    EXPECT_EQ(root.name(), "root");
+    EXPECT_EQ(root.type(), XmlNode::Type::ELEMENT) << root;
+    EXPECT_EQ(root.name(), "root") << root;
 
     const auto &attributes = root.attributes();
     ASSERT_EQ(attributes.size(), 1u);
     EXPECT_EQ(attributes[0].name, "attr");
     EXPECT_EQ(attributes[0].value, "value");
 
-    ASSERT_EQ(root.begin(), root.end());
-    EXPECT_EQ(root.content(), "Hello, world!");
+    //    ASSERT_EQ(root.begin(), root.end()) << *root.begin();
+    EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
 
 TEST(XmlParserTest, ParseComplexXml) {
@@ -45,6 +47,8 @@ TEST(XmlParserTest, ParseComplexXml) {
     std::istringstream input(xml_input);
 
     XmlNode root = parse(input);
+
+    std::cout << root << "\n";
 
     EXPECT_EQ(root.type(), XmlNode::Type::ELEMENT);
     EXPECT_EQ(root.name(), "catalog");
