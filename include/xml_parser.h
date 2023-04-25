@@ -47,7 +47,6 @@ XmlNode parse(std::vector<XmlToken>::const_iterator &it,
         const auto &token = *it;
         if (token.type() == TokenType::ELEMENT_OPEN) {
             // Recursively parse the children
-            ++it;
             while (it != end && it->type() != TokenType::ELEMENT_CLOSE) {
                 node.add_child(parse(it, end));
             }

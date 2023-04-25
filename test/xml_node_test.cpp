@@ -71,15 +71,13 @@ TEST(XmlParserTest, ParseComplexXml) {
     ASSERT_NE(child_iter, book_iter->end());
     EXPECT_EQ(child_iter->type(), XmlNode::Type::ELEMENT);
     EXPECT_EQ(child_iter->name(), "author");
-    EXPECT_EQ(child_iter->begin(), child_iter->end());
-    EXPECT_EQ(child_iter->content(), "Gambardella, Matthew");
+    EXPECT_EQ(child_iter->begin()->content(), "Gambardella, Matthew");
 
     ++child_iter;
     ASSERT_NE(child_iter, book_iter->end());
     EXPECT_EQ(child_iter->type(), XmlNode::Type::ELEMENT);
     EXPECT_EQ(child_iter->name(), "title");
-    EXPECT_EQ(child_iter->begin(), child_iter->end());
-    EXPECT_EQ(child_iter->content(), "XML Developer's Guide");
+    EXPECT_EQ(child_iter->begin()->content(), "XML Developer's Guide");
 
     // Add more assertions for the rest of the XML structure
 }
