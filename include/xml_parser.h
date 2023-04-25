@@ -12,8 +12,6 @@
 XmlNode parse(std::vector<XmlToken>::const_iterator &it,
               std::vector<XmlToken>::const_iterator end) {
 
-    std::cerr << "parsing" << *it << "\n";
-
     if (it->type() == TokenType::TEXT_CONTENT) {
         XmlNode node(XmlNode::Type::TEXT_CONTENT, "");
         node.content(it->str());

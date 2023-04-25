@@ -19,7 +19,6 @@ TEST(XmlParserTest, ParseSimpleXml) {
     EXPECT_EQ(attributes[0].name, "attr");
     EXPECT_EQ(attributes[0].value, "value");
 
-    //    ASSERT_EQ(root.begin(), root.end()) << *root.begin();
     EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
 
