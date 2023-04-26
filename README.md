@@ -9,7 +9,7 @@
 - [x] Compare
    - [x] Rapidxml
    - [x] TinyXml2
-   - [ ] Old slower algorithm
+   - [x] Old slower algorithm
 - [ ] Refactor for usage in other projects
 
 
@@ -30,6 +30,11 @@ not seem to be the majority of the time spent according to callgrind.
 
 According to this simple test, this library is in the same range as the other
 libraries. More testing is required to draw any definite conclusions.
+
+Added comparison with algorithm using heap allocations. The difference in speed
+seems to be only like 2x. However, file input and output is a big part of the
+time used (like half of the time for the other algorithms), 
+so the algorithm might be more like 4x slower.
 
 ```bash
 # RapidXml
@@ -54,4 +59,12 @@ $ time  ../fastxmlfmt -i generated2.json  -o  out.json
 real	0m0,454s
 user	0m0,276s
 sys	0m0,158s
+
+# HeapXml (Objects that is used for dynamically build xml documents)
+time  ../slowxmlfmt -i generated2.json  -o  out.json
+
+real	0m0,805s
+user	0m0,616s
+sys	0m0,188s
+
 ```

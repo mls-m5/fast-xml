@@ -44,8 +44,8 @@ public:
     }
 
     struct XmlAttribute {
-        std::string_view name;
-        std::string_view value;
+        std::string name;
+        std::string value;
 
         /// Get the value as a string
         std::string_view str() const {

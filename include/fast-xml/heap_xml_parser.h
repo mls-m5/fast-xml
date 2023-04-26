@@ -40,7 +40,8 @@ HeapXmlNode parse_on_heap(std::vector<HeapXmlToken>::const_iterator &it,
         }
         ++it;
         auto attribute_value = it->str();
-        node.attributes().push_back({attribute_name, attribute_value});
+        node.attributes().push_back(
+            {std::string{attribute_name}, std::string{attribute_value}});
         ++it;
     }
 

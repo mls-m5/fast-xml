@@ -10,7 +10,7 @@ using XmlToken = HeapXmlToken;
 
 TEST(XmlParserTest, TokenizeBasicXml) {
     std::string xml_input =
-        "<root attr=\"value\">Hello, world!<empty attr=\"value\"></root>";
+        "<root attr=\"value\">Hello, world!<empty attr=\"value\"/></root>";
     std::istringstream input(xml_input);
     std::vector<XmlToken> tokens = tokenize_on_heap(input);
 
