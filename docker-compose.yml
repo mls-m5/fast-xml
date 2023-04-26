@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  fast-xml:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: docker.io/yourusername/fast-xml
+    volumes:
+      - .:/fast-xml
+    command: bash -c "cmake -S . -B build/docker && cmake --build build/docker --config Release && cd build/docker && ctest --output-on-failure"
