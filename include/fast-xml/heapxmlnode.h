@@ -1,9 +1,12 @@
 #pragma once
 
+#include <charconv>
 #include <ostream>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace fastxml {
 
 /// Xml node that use heap allocations
 /// This could be used when writing xml data, but note that using it might be
@@ -43,6 +46,20 @@ public:
     struct XmlAttribute {
         std::string_view name;
         std::string_view value;
+
+        /// Get the value as a string
+        std::string_view str() const {
+            return value;
+        }
+
+        /// Convert to a number
+        template <typename T = int>
+        T number() const {
+            T ret = {};
+            auto str = this->str();
+            std::from_chars(str.begin(), str.end(), ret);
+            return ret;
+        }
     };
 
     struct XmlAttributes {
@@ -64,6 +81,14 @@ public:
                 }
             }
             return nullptr;
+        }
+
+        const XmlAttribute &at(std::string_view name) const {
+            if (auto f = find(name)) {
+                return *f;
+            }
+            throw std::out_of_range{"could not find attribute " +
+                                    std::string{name}};
         }
 
         XmlAttribute &operator[](std::size_t index) {
@@ -183,3 +208,5 @@ std::ostream &operator<<(std::ostream &os, const HeapXmlNode &node) {
     xml_node_to_string(node, os);
     return os;
 }
+
+} // namespace fastxml

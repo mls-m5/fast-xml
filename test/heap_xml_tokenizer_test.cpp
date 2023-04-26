@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
+using namespace fastxml;
+
 using XmlToken = HeapXmlToken;
 
 TEST(XmlParserTest, TokenizeBasicXml) {

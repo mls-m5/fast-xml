@@ -6,6 +6,8 @@
 #include <string>
 #include <string_view>
 
+namespace fastxml {
+
 class HeapXmlToken {
 public:
     HeapXmlToken(TokenType type = TokenType::UNKNOWN,
@@ -74,3 +76,5 @@ inline TokenType HeapXmlToken::type() const {
 inline bool HeapXmlToken::operator==(const HeapXmlToken other) const {
     return type() == other.type() && str() == other.str();
 }
+
+} // namespace fastxml

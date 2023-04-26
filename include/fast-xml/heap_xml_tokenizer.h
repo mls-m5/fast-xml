@@ -1,8 +1,9 @@
-// xml_parser.h
 #include "heapxmltoken.h"
 #include <cctype>
 #include <istream>
 #include <vector>
+
+namespace fastxml {
 
 /// Tokenizer used for comparison, use tokenize instead
 std::vector<HeapXmlToken> tokenize_on_heap(std::istream &input) {
@@ -200,3 +201,5 @@ std::vector<HeapXmlToken> tokenize_on_heap(std::istream &input) {
 
     return tokens;
 }
+
+} // namespace fastxml

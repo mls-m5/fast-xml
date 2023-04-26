@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 
+namespace fastxml {
+
 /// Function used only for comparison, parse instead
 HeapXmlNode parse_on_heap(std::vector<HeapXmlToken>::const_iterator &it,
                           std::vector<HeapXmlToken>::const_iterator end) {
@@ -72,3 +74,5 @@ HeapXmlNode parseSlow(std::istream &input) {
 
     return parse_on_heap(it, tokens.cend());
 }
+
+} // namespace fastxml

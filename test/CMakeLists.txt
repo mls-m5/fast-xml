@@ -18,16 +18,16 @@ include(GoogleTest)
 function(add_xml_parser_test test_name source_file)
   add_executable(${test_name} ${source_file})
   target_link_libraries(${test_name} PRIVATE xml_parser_interface gtest_main)
-  add_test(NAME ${test_name} COMMAND ${test_name})
   gtest_discover_tests(${test_name} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   target_compile_options(${test_name}  PRIVATE -Og)
+  add_test(NAME ${test_name} COMMAND ${test_name})
 endfunction()
 
 # Add the two tests
 add_xml_parser_test(xml_tokenizer_test xml_tokenizer_test.cpp)
-add_xml_parser_test(xml_node_test heap_xml_node_test.cpp)
+add_xml_parser_test(xml_node_test xml_node_test.cpp)
 add_xml_parser_test(heap_xml_tokenizer_test heap_xml_tokenizer_test.cpp)
-add_xml_parser_test(heap_xml_node_test xml_node_test.cpp)
+add_xml_parser_test(heap_xml_node_test heap_xml_node_test.cpp)
 
 file (COPY uggly.xml DESTINATION .)
 

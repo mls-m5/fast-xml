@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 
+namespace fastxml {
+
 class XmlFile {
 public:
     class Reader {
@@ -74,3 +76,5 @@ public:
 private:
     std::string _content;
 };
+
+} // namespace fastxml

@@ -1,6 +1,8 @@
 #include "fast-xml/xml_parser.h"
 #include "settings.h"
 
+using namespace fastxml;
+
 int main(int argc, char **argv) {
     try {
         const auto settings = Settings{argc, argv};

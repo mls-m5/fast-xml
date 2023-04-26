@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+namespace fastxml {
+
 class XmlNode {
 public:
     enum class Type { ELEMENT, TEXT_CONTENT };
@@ -265,3 +267,5 @@ std::ostream &operator<<(std::ostream &os, const XmlNode &node) {
     xml_node_to_string(node, os);
     return os;
 }
+
+} // namespace fastxml

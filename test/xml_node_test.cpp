@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <string>
 
+using namespace fastxml;
+
 using XmlT = XmlNode;
 
 TEST(XmlTest, ParseSimpleXml) {

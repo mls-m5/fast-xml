@@ -14,6 +14,8 @@
 #include <string>
 #include <string_view>
 
+namespace fastxml {
+
 struct XmlRoot {
 private:
     std::vector<XmlNode> nodes;
@@ -159,3 +161,5 @@ XmlRoot parse(std::istream &input) {
     auto node = parse(it, tokens.cend(), root);
     return root;
 }
+
+} // namespace fastxml

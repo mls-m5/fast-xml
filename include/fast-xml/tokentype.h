@@ -2,6 +2,8 @@
 
 #include <string_view>
 
+namespace fastxml {
+
 enum class TokenType {
     UNKNOWN,         // Unknown token type
     ELEMENT_OPEN,    // <element>
@@ -40,3 +42,5 @@ inline std::ostream &operator<<(std::ostream &os, TokenType type) {
     os << to_string(type);
     return os;
 }
+
+} // namespace fastxml

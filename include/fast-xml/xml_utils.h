@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+namespace fastxml {
+
 std::string_view strip(std::string_view s) {
     // Find the index of the first non-whitespace character
     auto first_non_ws = s.find_first_not_of(" \t\n\r");
@@ -19,3 +21,5 @@ std::string_view strip(std::string_view s) {
     // Return a string view of the non-whitespace portion of the input string
     return s.substr(first_non_ws, last_non_ws - first_non_ws + 1);
 }
+
+} // namespace fastxml

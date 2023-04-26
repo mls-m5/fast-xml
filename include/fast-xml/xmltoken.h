@@ -6,6 +6,8 @@
 #include <string>
 #include <string_view>
 
+namespace fastxml {
+
 class XmlToken {
 public:
     XmlToken(TokenType type = TokenType::UNKNOWN,
@@ -74,3 +76,5 @@ inline TokenType XmlToken::type() const {
 inline bool XmlToken::operator==(const XmlToken other) const {
     return type() == other.type() && str() == other.str();
 }
+
+} // namespace fastxml

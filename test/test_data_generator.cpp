@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+using namespace fastxml;
+
 int main() {
     // Create some random number generators
     std::mt19937 rng{std::random_device{}()};

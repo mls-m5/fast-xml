@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
+using namespace fastxml;
+
 TEST(XmlParserTest, TokenizeBasicXml) {
     //    std::string xml_input = "<root attr=\"value\">Hello, world!</root>";
     std::string xml_input =

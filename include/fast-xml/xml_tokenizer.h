@@ -1,4 +1,3 @@
-// xml_parser.h
 #include "tokentype.h"
 #include "xmlfile.h"
 #include "xmltoken.h"
@@ -8,6 +7,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace fastxml {
 
 std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     std::vector<XmlToken> tokens;
@@ -218,3 +219,5 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
 
     return tokens;
 }
+
+} // namespace fastxml

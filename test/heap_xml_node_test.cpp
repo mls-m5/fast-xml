@@ -5,9 +5,11 @@
 #include <sstream>
 #include <string>
 
+using namespace fastxml;
+
 using XmlT = HeapXmlNode;
 
-TEST(XmlTest, ParseSimpleXml) {
+TEST(HeapXmlTest, ParseSimpleXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!<empty"
                             "/><empty attr=\"v\"/></root>";
     std::istringstream input(xml_input);
@@ -29,7 +31,7 @@ TEST(XmlTest, ParseSimpleXml) {
     EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
 
-TEST(XmlTest, ParseComplexXml) {
+TEST(HeapXmlTest, ParseComplexXml) {
     std::string xml_input = R"(
 <catalog>
     <book id="bk101" edition="first">
@@ -53,7 +55,6 @@ TEST(XmlTest, ParseComplexXml) {
     std::istringstream input(xml_input);
 
     auto root = parseSlow(input);
-    //    auto root = root2.root();
 
     std::cout << root << "\n";
 
