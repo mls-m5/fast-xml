@@ -1,5 +1,6 @@
 #pragma once
 
+#include <charconv>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -13,8 +14,9 @@ public:
     struct Iterator {
         const XmlNode *ptr = 0;
 
-        void operator++() {
+        Iterator &operator++() {
             ptr = ptr->_next;
+            return *this;
         }
 
         bool operator==(const Iterator &other) const {
@@ -62,23 +64,57 @@ public:
         return _content;
     }
 
+    std::string_view str() const {
+        return content();
+    }
+
+    /// Convert to a number
+    template <typename T = int>
+    T number() const {
+        T ret = {};
+        auto str = this->str();
+        std::from_chars(str.begin(), str.end(), ret);
+
+        return ret;
+    }
+
     struct XmlAttribute {
+        XmlAttribute() = default;
+        XmlAttribute(const XmlAttribute &) = delete;
+        XmlAttribute(XmlAttribute &&) = default;
+
+        XmlAttribute(std::string_view name, std::string_view value)
+            : name{name}
+            , value{value} {}
+
         std::string_view name;
         std::string_view value;
 
         XmlAttribute *next = nullptr;
 
+        /// Get the value as a string
         std::string_view str() const {
             return value;
         }
+
+        /// Convert to a number
+        template <typename T = int>
+        T number() const {
+            T ret = {};
+            auto str = this->str();
+            std::from_chars(str.begin(), str.end(), ret);
+            return ret;
+        }
     };
+
     struct XmlAttributes {
 
         struct Iterator {
             const XmlAttribute *ptr = 0;
 
-            void operator++() {
+            Iterator operator++() {
                 ptr = ptr->next;
+                return *this;
             }
 
             bool operator==(const Iterator &other) const {

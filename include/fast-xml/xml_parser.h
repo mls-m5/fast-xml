@@ -32,7 +32,7 @@ public:
 
     XmlNode::XmlAttribute &createAttribute(std::string_view name,
                                            std::string_view value) {
-        attributes.push_back({name, value});
+        attributes.emplace_back(name, value);
         return attributes.back();
     }
 

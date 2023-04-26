@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 using XmlT = XmlNode;
@@ -25,6 +26,8 @@ TEST(XmlTest, ParseSimpleXml) {
     ASSERT_EQ(attributes.size(), 1u);
     EXPECT_EQ(attributes.front().name, "attr");
     EXPECT_EQ(attributes.front().value, "value");
+
+    EXPECT_EQ(attributes.at("attr").str(), "value");
 
     EXPECT_EQ(root.begin()->content(), "Hello, world!") << root.content();
 }
@@ -85,4 +88,33 @@ TEST(XmlTest, ParseComplexXml) {
     EXPECT_EQ(child_iter->begin()->content(), "XML Developer's Guide");
 
     // Add more assertions for the rest of the XML structure
+}
+
+TEST(XmlTest, ParseValues) {
+    std::string xml_input = "<root x=\"20\">23<empty"
+                            "/><empty2 attr=\"10\"/></root>";
+    std::istringstream input(xml_input);
+
+    auto root2 = parse(input);
+    auto root = root2.root();
+    std::cout << root << "\n";
+
+    EXPECT_TRUE(root2.file->isInFile(root.name()));
+    EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
+    EXPECT_EQ(root.name(), "root") << root;
+
+    const auto &attributes = root.attributes();
+
+    ASSERT_EQ(attributes.size(), 1u);
+
+    EXPECT_THROW(attributes.at("not found"), std::out_of_range);
+    EXPECT_EQ(attributes.at("x").str(), "20");
+    EXPECT_EQ(attributes.at("x").number(), 20);
+
+    EXPECT_EQ(root.begin()->number(), 23);
+
+    auto next = ++(++root.begin());
+    EXPECT_NE(next.ptr, nullptr);
+    EXPECT_EQ(next->name(), "empty2");
+    EXPECT_EQ(next->attributes().at("attr").number(), 10);
 }
