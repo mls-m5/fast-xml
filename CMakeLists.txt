@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(fast-xml)
+project(fastxml)
 
 # Create the interface library
 add_library(fastxml INTERFACE)

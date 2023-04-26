@@ -71,7 +71,7 @@ public:
 private:
     void print_help_and_exit() const {
         std::cerr << R"HELP(
-Usage: fast-xml [options]
+Usage: fastxml [options]
 
 Options:
   --input, -i <filename>   Specify input file (default: stdin)

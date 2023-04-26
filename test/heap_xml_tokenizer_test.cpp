@@ -1,6 +1,6 @@
 // xml_parser_test.cpp
-#include "fast-xml/heap_xml_tokenizer.h"
-#include "fast-xml/heapxmltoken.h"
+#include "fastxml/heap_xml_tokenizer.h"
+#include "fastxml/heapxmltoken.h"
 #include <gtest/gtest.h>
 #include <sstream>
 

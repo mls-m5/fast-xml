@@ -1,4 +1,4 @@
-#include "fast-xml/xml_parser.h"
+#include "fastxml/xml_parser.h"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <iostream>

@@ -1,5 +1,5 @@
 // xml_parser_test.cpp
-#include "fast-xml/xml_tokenizer.h"
+#include "fastxml/xml_tokenizer.h"
 #include <gtest/gtest.h>
 #include <sstream>
 

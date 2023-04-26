@@ -1,4 +1,4 @@
-#include "fast-xml/heap_xml_parser.h"
+#include "fastxml/heap_xml_parser.h"
 #include "settings.h"
 
 using namespace fastxml;
