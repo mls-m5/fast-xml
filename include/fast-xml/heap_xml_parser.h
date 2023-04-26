@@ -1,19 +1,20 @@
 #pragma once
 
-#include "slow_xml_tokenizer.h"
-#include "slowxmlnode.h"
-#include "slowxmltoken.h"
+#include "heap_xml_tokenizer.h"
+#include "heapxmlnode.h"
+#include "heapxmltoken.h"
 #include <iostream>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>
 
-SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
-                      std::vector<SlowXmlToken>::const_iterator end) {
+/// Function used only for comparison, parse instead
+HeapXmlNode parse_on_heap(std::vector<HeapXmlToken>::const_iterator &it,
+                          std::vector<HeapXmlToken>::const_iterator end) {
 
     if (it->type() == TokenType::TEXT_CONTENT) {
-        SlowXmlNode node(SlowXmlNode::Type::TEXT_CONTENT, "");
+        HeapXmlNode node(HeapXmlNode::Type::TEXT_CONTENT, "");
         node.content(it->str());
         ++it;
         return node;
@@ -23,7 +24,7 @@ SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
         throw std::runtime_error{"expected opening tag"};
     }
 
-    SlowXmlNode node(SlowXmlNode::Type::ELEMENT, "");
+    HeapXmlNode node(HeapXmlNode::Type::ELEMENT, "");
 
     node.name(it->str());
     ++it;
@@ -46,7 +47,7 @@ SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
         if (token.type() == TokenType::ELEMENT_OPEN) {
             // Recursively parse the children
             while (it != end && it->type() != TokenType::ELEMENT_CLOSE) {
-                node.add_child(parseSlow(it, end));
+                node.add_child(parse_on_heap(it, end));
             }
             return node;
         }
@@ -55,7 +56,7 @@ SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
             return node;
         }
         else if (token.type() == TokenType::TEXT_CONTENT) {
-            node.add_child(parseSlow(it, end));
+            node.add_child(parse_on_heap(it, end));
         }
         else {
             throw std::runtime_error{"Invalid token"};
@@ -65,9 +66,9 @@ SlowXmlNode parseSlow(std::vector<SlowXmlToken>::const_iterator &it,
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-SlowXmlNode parseSlow(std::istream &input) {
-    std::vector<SlowXmlToken> tokens = tokenizeSlow(input);
+HeapXmlNode parseSlow(std::istream &input) {
+    std::vector<HeapXmlToken> tokens = tokenize_on_heap(input);
     auto it = tokens.cbegin();
 
-    return parseSlow(it, tokens.cend());
+    return parse_on_heap(it, tokens.cend());
 }

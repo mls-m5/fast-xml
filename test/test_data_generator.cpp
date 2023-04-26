@@ -1,4 +1,4 @@
-#include "fast-xml/slowxmlnode.h"
+#include "fast-xml/heapxmlnode.h"
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -11,7 +11,7 @@ int main() {
     std::uniform_int_distribution<int> tag_dist{0, 2};
     std::uniform_int_distribution<int> content_dist{0, 4};
 
-    SlowXmlNode root{SlowXmlNode::Type::ELEMENT, "root"};
+    HeapXmlNode root{HeapXmlNode::Type::ELEMENT, "root"};
 
     for (int i = 0; i < 1000000; ++i) {
         // Determine the type of tag to create
@@ -19,7 +19,7 @@ int main() {
 
         if (tag_type == 0) {
             // Empty tag
-            SlowXmlNode node{SlowXmlNode::Type::ELEMENT, "empty_tag"};
+            HeapXmlNode node{HeapXmlNode::Type::ELEMENT, "empty_tag"};
             root.add_child(std::move(node));
         }
         else if (tag_type == 1) {
@@ -49,13 +49,13 @@ int main() {
                     "culpa qui officia deserunt mollit anim id est laborum.";
             }
 
-            SlowXmlNode node{
-                SlowXmlNode::Type::TEXT_CONTENT, "", {}, {}, content};
+            HeapXmlNode node{
+                HeapXmlNode::Type::TEXT_CONTENT, "", {}, {}, content};
             root.add_child(std::move(node));
         }
         else if (tag_type == 2) {
             // Element with attributes
-            SlowXmlNode node{SlowXmlNode::Type::ELEMENT,
+            HeapXmlNode node{HeapXmlNode::Type::ELEMENT,
                              "element_with_attributes"};
             node.attributes().push_back({"attr1", "value1"});
             node.attributes().push_back({"attr2", "value2"});

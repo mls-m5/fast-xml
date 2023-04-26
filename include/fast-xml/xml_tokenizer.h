@@ -47,6 +47,9 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             if (*ch == '<') {
                 current_token = strip(std::move(current_token));
                 if (!current_token.empty()) {
+                    // TODO: Possible count the required amount of tokens in
+                    // forehand to remove need for resizing this vector
+                    // However it does not seem to be the biggest bottleneck.
                     tokens.emplace_back(TokenType::TEXT_CONTENT,
                                         current_token,
                                         line,

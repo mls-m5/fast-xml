@@ -5,7 +5,10 @@
 #include <string_view>
 #include <vector>
 
-class SlowXmlNode {
+/// Xml node that use heap allocations
+/// This could be used when writing xml data, but note that using it might be
+/// slower than other alternatives
+class HeapXmlNode {
 public:
     enum class Type { ELEMENT, TEXT_CONTENT };
 
@@ -21,11 +24,11 @@ public:
         return _name;
     }
 
-    std::vector<SlowXmlNode>::const_iterator begin() const {
+    std::vector<HeapXmlNode>::const_iterator begin() const {
         return _children.cbegin();
     }
 
-    std::vector<SlowXmlNode>::const_iterator end() const {
+    std::vector<HeapXmlNode>::const_iterator end() const {
         return _children.cend();
     }
 
@@ -108,9 +111,9 @@ public:
         }
     };
 
-    SlowXmlNode(Type type,
+    HeapXmlNode(Type type,
                 std::string_view name,
-                std::vector<SlowXmlNode> children = {},
+                std::vector<HeapXmlNode> children = {},
                 XmlAttributes attributes = {},
                 std::string_view content = "")
         : _type(type)
@@ -127,22 +130,22 @@ public:
         return _attributes;
     }
 
-    void add_child(SlowXmlNode child) {
+    void add_child(HeapXmlNode child) {
         _children.push_back(std::move(child));
     }
 
 private:
     Type _type;
     std::string _name;
-    std::vector<SlowXmlNode> _children;
+    std::vector<HeapXmlNode> _children;
     std::string _content;
     XmlAttributes _attributes;
 };
 
-void xml_node_to_string(const SlowXmlNode &node,
+void xml_node_to_string(const HeapXmlNode &node,
                         std::ostream &stream,
                         std::size_t indent = 0) {
-    if (node.type() == SlowXmlNode::Type::ELEMENT) {
+    if (node.type() == HeapXmlNode::Type::ELEMENT) {
         // Print the opening tag
         stream << std::string(indent, ' ') << "<" << node.name();
 
@@ -170,13 +173,13 @@ void xml_node_to_string(const SlowXmlNode &node,
             stream << std::string(indent, ' ') << "</" << node.name() << ">\n";
         }
     }
-    else if (node.type() == SlowXmlNode::Type::TEXT_CONTENT) {
+    else if (node.type() == HeapXmlNode::Type::TEXT_CONTENT) {
         // Print the content
         stream << std::string(indent, ' ') << node.content() << "\n";
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const SlowXmlNode &node) {
+std::ostream &operator<<(std::ostream &os, const HeapXmlNode &node) {
     xml_node_to_string(node, os);
     return os;
 }

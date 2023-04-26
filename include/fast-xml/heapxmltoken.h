@@ -6,9 +6,9 @@
 #include <string>
 #include <string_view>
 
-class SlowXmlToken {
+class HeapXmlToken {
 public:
-    SlowXmlToken(TokenType type = TokenType::UNKNOWN,
+    HeapXmlToken(TokenType type = TokenType::UNKNOWN,
                  std::string value = "",
                  std::size_t line = 0,
                  std::size_t col = 0);
@@ -21,7 +21,7 @@ public:
 
     TokenType type() const;
 
-    bool operator==(const SlowXmlToken other) const;
+    bool operator==(const HeapXmlToken other) const;
 
 private:
     TokenType _type;
@@ -30,7 +30,7 @@ private:
     std::size_t _col;
 };
 
-std::string join_tokens(const std::vector<SlowXmlToken> &tokens) {
+std::string join_tokens(const std::vector<HeapXmlToken> &tokens) {
     std::string result;
     for (const auto &token : tokens) {
         if (token.type() == TokenType::TEXT_CONTENT) {
@@ -40,13 +40,13 @@ std::string join_tokens(const std::vector<SlowXmlToken> &tokens) {
     return result;
 }
 
-std::ostream &operator<<(std::ostream &os, const SlowXmlToken &token) {
+std::ostream &operator<<(std::ostream &os, const HeapXmlToken &token) {
     os << "('" << token.str() << "', " << to_string(token.type()) << ", "
        << token.line() << ", " << token.col() << ")";
     return os;
 }
 
-inline SlowXmlToken::SlowXmlToken(TokenType type,
+inline HeapXmlToken::HeapXmlToken(TokenType type,
                                   std::string value,
                                   std::size_t line,
                                   std::size_t col)
@@ -55,22 +55,22 @@ inline SlowXmlToken::SlowXmlToken(TokenType type,
     , _line(line)
     , _col(col) {}
 
-inline std::string_view SlowXmlToken::str() const {
+inline std::string_view HeapXmlToken::str() const {
     return _value;
 }
 
-inline std::size_t SlowXmlToken::line() const {
+inline std::size_t HeapXmlToken::line() const {
     return _line;
 }
 
-inline std::size_t SlowXmlToken::col() const {
+inline std::size_t HeapXmlToken::col() const {
     return _col;
 }
 
-inline TokenType SlowXmlToken::type() const {
+inline TokenType HeapXmlToken::type() const {
     return _type;
 }
 
-inline bool SlowXmlToken::operator==(const SlowXmlToken other) const {
+inline bool HeapXmlToken::operator==(const HeapXmlToken other) const {
     return type() == other.type() && str() == other.str();
 }

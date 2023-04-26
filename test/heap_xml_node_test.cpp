@@ -1,11 +1,11 @@
-#include "fast-xml/slow_xml_parser.h"
+#include "fast-xml/heap_xml_parser.h"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-using XmlT = SlowXmlNode;
+using XmlT = HeapXmlNode;
 
 TEST(XmlTest, ParseSimpleXml) {
     std::string xml_input = "<root attr=\"value\">Hello, world!<empty"

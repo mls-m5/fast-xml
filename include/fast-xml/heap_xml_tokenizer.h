@@ -1,11 +1,12 @@
 // xml_parser.h
-#include "slowxmltoken.h"
+#include "heapxmltoken.h"
 #include <cctype>
 #include <istream>
 #include <vector>
 
-std::vector<SlowXmlToken> tokenizeSlow(std::istream &input) {
-    std::vector<SlowXmlToken> tokens;
+/// Tokenizer used for comparison, use tokenize instead
+std::vector<HeapXmlToken> tokenize_on_heap(std::istream &input) {
+    std::vector<HeapXmlToken> tokens;
     std::string current_token;
     std::size_t line = 1, col = 1;
     char ch;

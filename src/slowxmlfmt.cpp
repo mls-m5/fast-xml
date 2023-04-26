@@ -1,4 +1,4 @@
-#include "fast-xml/slow_xml_parser.h"
+#include "fast-xml/heap_xml_parser.h"
 #include "settings.h"
 
 int main(int argc, char **argv) {
