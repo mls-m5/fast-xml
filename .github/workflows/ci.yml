@@ -1,0 +1,33 @@
+name: Build and Test
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++-9
+
+    - name: Install dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install cmake
+        choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build
+        cmake --build build --config Release
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure

@@ -54,6 +54,7 @@ add_executable(fastxmlfmt src/main.cpp)
 target_compile_features(fastxmlfmt PRIVATE cxx_std_17)
 target_link_libraries(fastxmlfmt PRIVATE fastxml ${CMAKE_THREAD_LIBS_INIT})
 
+enable_testing()
 add_subdirectory(test)
 
 add_library(fastxml::fastxml ALIAS fastxml)
