@@ -17,7 +17,7 @@ include(GoogleTest)
 # Define a function to add a test
 function(add_xml_parser_test test_name source_file)
   add_executable(${test_name} ${source_file})
-  target_link_libraries(${test_name} PRIVATE xml_parser_interface gtest_main)
+  target_link_libraries(${test_name} PRIVATE fastxml gtest_main)
   gtest_discover_tests(${test_name} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   target_compile_options(${test_name}  PRIVATE -Og)
   add_test(NAME ${test_name} COMMAND ${test_name})
@@ -33,4 +33,4 @@ file (COPY uggly.xml DESTINATION .)
 
 add_executable(test_data_generator test_data_generator.cpp)
 
-target_link_libraries(test_data_generator PRIVATE xml_parser_interface)
+target_link_libraries(test_data_generator PRIVATE fastxml)

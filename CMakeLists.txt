@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.23)
 project(fast-xml)
 
 # Create the interface library
-add_library(xml_parser_interface INTERFACE)
-target_include_directories(xml_parser_interface INTERFACE include)
+add_library(fastxml INTERFACE)
+target_include_directories(fastxml INTERFACE include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
@@ -32,28 +32,28 @@ if (ENABLE_COMPARISONS)
         message(STATUS "RapidXML source dir: ${rapidxml_SOURCE_DIR}")
     endif()
 
-    # Build the txmlfmt executable that uses the tinyxml2 library
+    # Build the txmlfmt
     add_executable(txmlfmt src/txmlfmt.cpp)
     target_compile_features(txmlfmt PRIVATE cxx_std_17)
-    target_link_libraries(txmlfmt PRIVATE xml_parser_interface tinyxml2)
+    target_link_libraries(txmlfmt PRIVATE fastxml tinyxml2)
 
-    # Build the rxmlfmt executable that uses the RapidXML library
+    # Build the rxmlfmt
     add_executable(rxmlfmt src/rxmlfmt.cpp)
     target_compile_features(rxmlfmt PRIVATE cxx_std_17)
-    target_link_libraries(rxmlfmt PRIVATE xml_parser_interface)
+    target_link_libraries(rxmlfmt PRIVATE fastxml)
     target_include_directories(rxmlfmt PRIVATE ${rapidxml_SOURCE_DIR}) # Link RapidXML
 
     target_link_libraries(txmlfmt PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+
+    add_executable(slowxmlfmt src/slowxmlfmt.cpp)
+    target_compile_features(slowxmlfmt PRIVATE cxx_std_17)
+    target_link_libraries(slowxmlfmt PRIVATE fastxml ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-# Build the fastxmlfmt executable that uses the fast-xml library
 add_executable(fastxmlfmt src/main.cpp)
 target_compile_features(fastxmlfmt PRIVATE cxx_std_17)
-target_link_libraries(fastxmlfmt PRIVATE xml_parser_interface ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fastxmlfmt PRIVATE fastxml ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(slowxmlfmt src/slowxmlfmt.cpp)
-target_compile_features(slowxmlfmt PRIVATE cxx_std_17)
-target_link_libraries(slowxmlfmt PRIVATE xml_parser_interface ${CMAKE_THREAD_LIBS_INIT})
-
-# Pass the interface library to the test subdirectory
 add_subdirectory(test)
+
+add_library(fastxml::fastxml ALIAS fastxml)

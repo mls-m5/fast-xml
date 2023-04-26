@@ -10,7 +10,7 @@
    - [x] Rapidxml
    - [x] TinyXml2
    - [x] Old slower algorithm
-- [ ] Refactor for usage in other projects
+- [x] Refactor for usage in other projects
 
 
 Things that _might_ be implemented in the future
