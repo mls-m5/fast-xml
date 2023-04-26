@@ -57,7 +57,7 @@ public:
         T number() const {
             T ret = {};
             auto str = this->str();
-            std::from_chars(str.begin(), str.end(), ret);
+            std::from_chars(str.data(), str.data() + str.size(), ret);
             return ret;
         }
     };
