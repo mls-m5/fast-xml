@@ -206,6 +206,14 @@ public:
         return _attributes;
     }
 
+    const XmlAttribute &attr(std::string_view name) const {
+        return _attributes.at(name);
+    }
+
+    const XmlAttribute *findAttr(std::string_view name) const {
+        return _attributes.find(name);
+    }
+
     void children(XmlNode *firstChild) {
         if (_children) {
             throw std::runtime_error{"Xml error: Child is already set"};
