@@ -5,7 +5,8 @@ project(fastxml)
 add_library(fastxml INTERFACE)
 target_include_directories(fastxml INTERFACE include)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
 
 find_package(Threads)
 

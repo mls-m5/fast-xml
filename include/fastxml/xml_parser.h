@@ -80,9 +80,6 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
 
     XmlNode &node = root.createNode(XmlNode::Type::ELEMENT, "");
 
-    //    if (!root.file->isInFile(it->str())) {
-    //        throw std::runtime_error{"str is not in file"};
-    //    }
     node.name(it->str());
     ++it;
 
@@ -130,6 +127,7 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
             while (it != end && it->type() != TokenType::ELEMENT_CLOSE) {
                 addChild(&parse(it, end, root));
             }
+            ++it;
             return node;
         }
         else if (token.type() == TokenType::ELEMENT_CLOSE) {
