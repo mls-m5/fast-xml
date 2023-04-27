@@ -68,3 +68,10 @@ user	0m0,616s
 sys	0m0,188s
 
 ```
+
+
+## About mixed styles
+
+It seems like ChatGPT prefers to write all new project in snake_case while i
+prefer pascalCase. That is why the naming is mixed from time to time. I
+should probably clean it up some time.

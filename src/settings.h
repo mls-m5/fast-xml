@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -17,14 +18,16 @@ public:
 
             if (arg == "--input" || arg == "-i") {
                 if (i + 1 < args.size()) {
-                    input_file = std::ifstream{args.at(i + 1)};
+                    in_path = args.at(++i);
+                    input_file = std::ifstream{in_path};
                     if (!input_file.is_open()) {
-                        std::cerr << "Error: Could not open input file: "
-                                  << args.at(i + 1) << std::endl;
+                        std::cerr
+                            << "Error: Could not open input file: " << in_path
+                            << std::endl;
                         std::exit(1);
                     }
                     input_str = &input_file;
-                    ++i;
+                    check_if_same();
                 }
                 else {
                     std::cerr << "Error: No input file specified after: " << arg
@@ -34,14 +37,16 @@ public:
             }
             else if (arg == "--output" || arg == "-o") {
                 if (i + 1 < args.size()) {
-                    output_file = std::ofstream{args.at(i + 1)};
+                    out_path = args.at(++i);
+                    output_file = std::ofstream{out_path};
                     if (!output_file.is_open()) {
-                        std::cerr << "Error: Could not open output file: "
-                                  << args.at(i + 1) << std::endl;
+                        std::cerr
+                            << "Error: Could not open output file: " << out_path
+                            << std::endl;
                         std::exit(1);
                     }
                     output_str = &output_file;
-                    ++i;
+                    check_if_same();
                 }
                 else {
                     std::cerr
@@ -68,6 +73,16 @@ public:
         return *output_str;
     }
 
+    void check_if_same() {
+        if (input_str == &tmp) {
+            return;
+        }
+        if (in_path == out_path) {
+            tmp << input_str->rdbuf();
+            input_str = &tmp;
+        }
+    }
+
 private:
     void print_help_and_exit() const {
         std::cerr << R"HELP(
@@ -80,6 +95,11 @@ Options:
 )HELP";
         std::exit(1);
     }
+
+    std::filesystem::path in_path;
+    std::filesystem::path out_path;
+
+    std::stringstream tmp; // Used if input and output is the same
 
     std::ifstream input_file;
     std::ofstream output_file;

@@ -16,10 +16,10 @@ TEST(XmlTest, ParseSimpleXml) {
     std::istringstream input(xml_input);
 
     auto root2 = parse(input);
-    auto root = root2.root();
+    auto root = root2->root();
     std::cout << root << "\n";
 
-    EXPECT_TRUE(root2.file->isInFile(root.name()));
+    EXPECT_TRUE(root2->file->isInFile(root.name()));
     EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
     EXPECT_EQ(root.name(), "root") << root;
 
@@ -58,7 +58,7 @@ TEST(XmlTest, ParseComplexXml) {
     std::istringstream input(xml_input);
 
     auto root2 = parse(input);
-    auto root = root2.root();
+    auto root = root2->root();
 
     std::cout << root << "\n";
 
@@ -98,10 +98,10 @@ TEST(XmlTest, ParseValues) {
     std::istringstream input(xml_input);
 
     auto root2 = parse(input);
-    auto root = root2.root();
+    auto root = root2->root();
     std::cout << root << "\n";
 
-    EXPECT_TRUE(root2.file->isInFile(root.name()));
+    EXPECT_TRUE(root2->file->isInFile(root.name()));
     EXPECT_EQ(root.type(), XmlT::Type::ELEMENT) << root;
     EXPECT_EQ(root.name(), "root") << root;
 
@@ -119,4 +119,39 @@ TEST(XmlTest, ParseValues) {
     EXPECT_NE(next.ptr, nullptr);
     EXPECT_EQ(next->name(), "empty2");
     EXPECT_EQ(next->attributes().at("attr").number(), 10);
+}
+
+TEST(XmlTest, SubsequentNestedObjects) {
+    auto xml_input = R"(<project name="test-project">
+
+   <sources><santhoe/></sources>
+   <clips>
+      <clip
+          path="Test.webm"
+          start_time="0"
+          duration="100"
+      />
+      <clip
+          path="Test.webm"
+          start_time="2"
+          duration="100"
+      />
+   </clips>
+</project>)";
+
+    std::istringstream input(xml_input);
+
+    auto container = parse(input);
+    auto root = container->root();
+
+    std::cout << root << std::endl;
+
+    bool hasFoundClips = false;
+    for (auto &child : root) {
+        if (child.name() == "clips") {
+            hasFoundClips = true;
+        }
+    }
+
+    EXPECT_TRUE(hasFoundClips);
 }

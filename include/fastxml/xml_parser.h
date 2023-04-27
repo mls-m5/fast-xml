@@ -16,12 +16,24 @@
 
 namespace fastxml {
 
+class ParserError : public std::runtime_error {
+public:
+    ParserError(std::string_view description, const XmlToken &token)
+        : std::runtime_error{std::string{description} + " at " +
+                             std::to_string(token.line()) + ":" +
+                             std::to_string(token.col())} {}
+};
+
 struct XmlRoot {
 private:
     std::vector<XmlNode> nodes;
     std::vector<XmlNode::XmlAttribute> attributes;
 
 public:
+    XmlRoot() = default;
+    XmlRoot(const XmlRoot &) = delete;
+    XmlRoot(const XmlRoot &&) = delete;
+
     void reserve(int n, int a) {
         nodes.reserve(n);
         attributes.reserve(a);
@@ -63,14 +75,14 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
     }
 
     if (it->type() != TokenType::ELEMENT_OPEN) {
-        throw std::runtime_error{"expected opening tag"};
+        throw ParserError{"expected opening tag", *it};
     }
 
     XmlNode &node = root.createNode(XmlNode::Type::ELEMENT, "");
 
-    if (!root.file->isInFile(it->str())) {
-        throw std::runtime_error{"str is not in file"};
-    }
+    //    if (!root.file->isInFile(it->str())) {
+    //        throw std::runtime_error{"str is not in file"};
+    //    }
     node.name(it->str());
     ++it;
 
@@ -81,9 +93,10 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
         auto attribute_name = it->str();
         auto next = it + 1;
         if (next == end || next->type() != TokenType::ATTRIBUTE_VALUE) {
-            throw std::runtime_error(
+            throw ParserError{
                 "Invalid XML format: Missing attribute value at line " +
-                std::to_string(it->line()));
+                    std::to_string(it->line()),
+                *it};
         }
         ++it;
         auto attribute_value = it->str();
@@ -120,6 +133,13 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
             return node;
         }
         else if (token.type() == TokenType::ELEMENT_CLOSE) {
+            if (!token.str().empty()) {
+                if (token.str() != node.name()) {
+                    throw ParserError{"missmatched close tag " +
+                                          std::string{token.str()},
+                                      token};
+                }
+            }
             ++it;
             return node;
         }
@@ -127,22 +147,22 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
             addChild(&parse(it, end, root));
         }
         else {
-            throw std::runtime_error{"Invalid token"};
+            throw ParserError{"Invalid token", token};
         }
     }
 
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-XmlRoot parse(std::istream &input) {
+std::unique_ptr<XmlRoot> parse(std::istream &input) {
     int numNodes = 0;
     int numAttributes = 0;
 
-    auto root = XmlRoot{};
+    auto root = std::make_unique<XmlRoot>();
 
-    root.file = std::make_shared<XmlFile>(input);
+    root->file = std::make_shared<XmlFile>(input);
 
-    auto reader = root.file->reader();
+    auto reader = root->file->reader();
     std::vector<XmlToken> tokens = tokenize(reader);
 
     for (auto &token : tokens) {
@@ -155,10 +175,10 @@ XmlRoot parse(std::istream &input) {
         }
     }
 
-    root.reserve(numNodes, numAttributes);
+    root->reserve(numNodes, numAttributes);
 
     auto it = tokens.cbegin();
-    auto node = parse(it, tokens.cend(), root);
+    auto node = parse(it, tokens.cend(), *root);
     return root;
 }
 

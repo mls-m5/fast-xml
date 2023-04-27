@@ -30,8 +30,22 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
 
     State state = State::TEXT;
 
-    while (std::isspace(input.peek())) {
+    auto next = [&] {
+        if (*ch == '\n') {
+            line++;
+            col = 1;
+        }
+        else {
+            col++;
+        }
         input.get(ch);
+    };
+
+    if (std::isspace(input.peek())) {
+        input.get(ch);
+    }
+    while (std::isspace(input.peek())) {
+        next();
     }
 
     auto addCh = [](std::string_view &sv, const char *ch) {
@@ -91,7 +105,8 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
 
                 if (current_token.empty()) {
                     while (input && std::isspace(input.peek())) {
-                        input.get(ch);
+                        next();
+                        //                        input.get(ch);
                     }
                 }
             }
@@ -104,7 +119,8 @@ std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
 
                 if (current_token.empty()) {
                     while (input && std::isspace(input.peek())) {
-                        input.get(ch);
+                        next();
+                        //                        input.get(ch);
                     }
                 }
 
