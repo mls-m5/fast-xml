@@ -63,6 +63,11 @@ public:
     }
 
     std::string_view content() const {
+        if (_content.empty()) {
+            if (_children && _children->type() == Type::TEXT_CONTENT) {
+                return _children->str();
+            }
+        }
         return _content;
     }
 
