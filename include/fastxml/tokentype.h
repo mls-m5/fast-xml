@@ -15,7 +15,7 @@ enum class TokenType {
     CDATA            // <![CDATA[data]]>
 };
 
-std::string_view to_string(TokenType type) {
+inline std::string_view to_string(TokenType type) {
     switch (type) {
     case TokenType::UNKNOWN:
         return "UNKNOWN";

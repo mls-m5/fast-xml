@@ -167,9 +167,9 @@ private:
     XmlAttributes _attributes;
 };
 
-void xml_node_to_string(const HeapXmlNode &node,
-                        std::ostream &stream,
-                        std::size_t indent = 0) {
+inline void xml_node_to_string(const HeapXmlNode &node,
+                               std::ostream &stream,
+                               std::size_t indent = 0) {
     if (node.type() == HeapXmlNode::Type::ELEMENT) {
         // Print the opening tag
         stream << std::string(indent, ' ') << "<" << node.name();
@@ -204,7 +204,7 @@ void xml_node_to_string(const HeapXmlNode &node,
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const HeapXmlNode &node) {
+inline std::ostream &operator<<(std::ostream &os, const HeapXmlNode &node) {
     xml_node_to_string(node, os);
     return os;
 }

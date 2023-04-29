@@ -234,9 +234,9 @@ private:
     XmlNode *_next = nullptr;
 };
 
-void xml_node_to_string(const XmlNode &node,
-                        std::ostream &stream,
-                        std::size_t indent = 0) {
+inline void xml_node_to_string(const XmlNode &node,
+                               std::ostream &stream,
+                               std::size_t indent = 0) {
     if (node.type() == XmlNode::Type::ELEMENT) {
         // Print the opening tag
         stream << std::string(indent, ' ') << "<" << node.name();
@@ -271,7 +271,7 @@ void xml_node_to_string(const XmlNode &node,
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const XmlNode &node) {
+inline std::ostream &operator<<(std::ostream &os, const XmlNode &node) {
     xml_node_to_string(node, os);
     return os;
 }

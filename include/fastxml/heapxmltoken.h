@@ -42,7 +42,7 @@ std::string join_tokens(const std::vector<HeapXmlToken> &tokens) {
     return result;
 }
 
-std::ostream &operator<<(std::ostream &os, const HeapXmlToken &token) {
+inline std::ostream &operator<<(std::ostream &os, const HeapXmlToken &token) {
     os << "('" << token.str() << "', " << to_string(token.type()) << ", "
        << token.line() << ", " << token.col() << ")";
     return os;

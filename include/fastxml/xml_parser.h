@@ -59,13 +59,13 @@ public:
     }
 };
 
-std::ostream &operator<<(std::ostream &os, const XmlRoot &x) {
+inline std::ostream &operator<<(std::ostream &os, const XmlRoot &x) {
     return os << x.root();
 }
 
-XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
-               std::vector<XmlToken>::const_iterator end,
-               XmlRoot &root) {
+inline XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
+                      std::vector<XmlToken>::const_iterator end,
+                      XmlRoot &root) {
 
     if (it->type() == TokenType::TEXT_CONTENT) {
         XmlNode &node = root.createNode(XmlNode::Type::TEXT_CONTENT, {});
@@ -152,7 +152,7 @@ XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-std::unique_ptr<XmlRoot> parse(std::istream &input) {
+inline std::unique_ptr<XmlRoot> parse(std::istream &input) {
     int numNodes = 0;
     int numAttributes = 0;
 

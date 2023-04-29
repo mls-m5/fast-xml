@@ -12,8 +12,9 @@
 namespace fastxml {
 
 /// Function used only for comparison, parse instead
-HeapXmlNode parse_on_heap(std::vector<HeapXmlToken>::const_iterator &it,
-                          std::vector<HeapXmlToken>::const_iterator end) {
+inline HeapXmlNode parse_on_heap(
+    std::vector<HeapXmlToken>::const_iterator &it,
+    std::vector<HeapXmlToken>::const_iterator end) {
 
     if (it->type() == TokenType::TEXT_CONTENT) {
         HeapXmlNode node(HeapXmlNode::Type::TEXT_CONTENT, "");
@@ -69,7 +70,7 @@ HeapXmlNode parse_on_heap(std::vector<HeapXmlToken>::const_iterator &it,
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-HeapXmlNode parseSlow(std::istream &input) {
+inline HeapXmlNode parseSlow(std::istream &input) {
     std::vector<HeapXmlToken> tokens = tokenize_on_heap(input);
     auto it = tokens.cbegin();
 

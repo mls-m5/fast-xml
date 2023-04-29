@@ -5,7 +5,7 @@
 
 namespace fastxml {
 
-std::string_view strip(std::string_view s) {
+inline std::string_view strip(std::string_view s) {
     // Find the index of the first non-whitespace character
     auto first_non_ws = s.find_first_not_of(" \t\n\r");
 
