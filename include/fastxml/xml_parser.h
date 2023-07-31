@@ -152,15 +152,17 @@ inline XmlNode &parse(std::vector<XmlToken>::const_iterator &it,
     throw std::runtime_error("Invalid XML format: Missing element closing tag");
 }
 
-inline std::unique_ptr<XmlRoot> parse(std::istream &input) {
+inline std::unique_ptr<XmlRoot> parse(std::shared_ptr<XmlFile> file) {
     int numNodes = 0;
     int numAttributes = 0;
 
     auto root = std::make_unique<XmlRoot>();
 
-    root->file = std::make_shared<XmlFile>(input);
+    root->file = std::move(file);
 
     auto reader = root->file->reader();
+
+    // TODO: Handle tokenizing to prevent reallocating vector
     std::vector<XmlToken> tokens = tokenize(reader);
 
     for (auto &token : tokens) {
@@ -178,6 +180,14 @@ inline std::unique_ptr<XmlRoot> parse(std::istream &input) {
     auto it = tokens.cbegin();
     auto node = parse(it, tokens.cend(), *root);
     return root;
+}
+
+inline std::unique_ptr<XmlRoot> parse(std::istream &input) {
+    return parse(std::make_shared<XmlFile>(input));
+}
+
+inline std::unique_ptr<XmlRoot> parse(std::string str) {
+    return parse(std::make_shared<XmlFile>(std::move(str)));
 }
 
 } // namespace fastxml

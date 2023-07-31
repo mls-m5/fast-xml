@@ -23,6 +23,7 @@ add_xml_parser_test(xml_tokenizer_test)
 add_xml_parser_test(xml_node_test)
 add_xml_parser_test(heap_xml_tokenizer_test)
 add_xml_parser_test(heap_xml_node_test)
+add_xml_parser_test(out_xml_node_test)
 
 file (COPY uggly.xml DESTINATION .)
 
