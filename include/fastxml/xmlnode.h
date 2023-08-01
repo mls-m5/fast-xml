@@ -230,6 +230,26 @@ public:
         _next = next;
     }
 
+    /// Find a node by its tag name
+    const XmlNode *find(std::string_view name) const {
+        for (auto &child : *this) {
+            if (child.name() == name) {
+                return &child;
+            }
+        }
+        return nullptr;
+    }
+
+    /// Like find but expect to find a value
+    const XmlNode &at(std::string_view name) const {
+        if (auto node = find(name)) {
+            return *node;
+        }
+
+        throw std::out_of_range{"could not find element " + std::string{name} +
+                                " on xml node " + std::string{name}};
+    }
+
 private:
     Type _type;
     std::string_view _name;
