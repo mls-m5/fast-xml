@@ -32,7 +32,7 @@ private:
     std::size_t _col;
 };
 
-std::string join_tokens(const std::vector<XmlToken> &tokens) {
+inline std::string join_tokens(const std::vector<XmlToken> &tokens) {
     std::string result;
     for (const auto &token : tokens) {
         if (token.type() == TokenType::TEXT_CONTENT) {
@@ -42,7 +42,7 @@ std::string join_tokens(const std::vector<XmlToken> &tokens) {
     return result;
 }
 
-std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
+inline std::ostream &operator<<(std::ostream &os, const XmlToken &token) {
     os << "('" << token.str() << "', " << to_string(token.type()) << ", "
        << token.line() << ", " << token.col() << ")";
     return os;

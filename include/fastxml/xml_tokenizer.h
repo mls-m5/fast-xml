@@ -10,7 +10,7 @@
 
 namespace fastxml {
 
-std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
+inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     std::vector<XmlToken> tokens;
     std::string_view current_token;
     std::size_t line = 1, col = 1;

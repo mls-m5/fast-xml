@@ -76,12 +76,15 @@ public:
         if (_type == Type::TextContent) {
             return;
         }
-        finish_attributes();
         if (_has_children) {
+            finish_attributes();
             _indentation -= 1;
             indent();
             _stream << "</" << _name << ">";
+            return;
         }
+
+        _stream << "/>";
     }
 
 private:
