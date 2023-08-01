@@ -12,28 +12,43 @@ namespace fastxml {
 class OutXmlNode {
 public:
     enum class Type { Element, TextContent };
-    enum class Status { Attributes, Content };
+    enum class Status { Attributes, Content, XValue };
+
+    OutXmlNode(const OutXmlNode &) = delete;
+    OutXmlNode &operator=(const OutXmlNode &) = delete;
+
+    OutXmlNode(OutXmlNode &&other)
+        : _stream{other._stream}
+        , _name{std::move(other._name)}
+        , _has_children{other._has_children}
+        , _type{other._type}
+        , _indentation{other._indentation}
+        , _status{other._status}
+        , _newline_character{other._newline_character} {
+        other._status = Status::XValue;
+    }
 
     void content(std::string_view value) {
         _has_children = true;
         finish_attributes();
-        indent();
+        //        indent();
         _stream << value;
     }
 
     template <typename T>
     void add_attribute(std::string_view name, const T &value) {
-        _stream << " " << name << " = \"" << value << '"';
+        _stream << " " << name << "=\"" << value << '"';
     }
 
     OutXmlNode(std::ostream &stream,
                std::string_view name,
                Type type = Type::Element,
-               int indentation = 0,
+               int indentation = 1,
                char newLine = '\n')
         : _stream{stream}
         , _name{name}
-        , _type{type} {
+        , _type{type}
+        , _indentation{indentation} {
         if (_type == Type::TextContent) {
             _stream << name;
             return;
@@ -48,18 +63,24 @@ public:
             finish_attributes();
         };
 
+        indent();
+
         return OutXmlNode{
             _stream, name, type, _indentation + 1, _newline_character};
     }
 
     ~OutXmlNode() {
+        if (_status == Status::XValue) {
+            return;
+        }
         if (_type == Type::TextContent) {
             return;
         }
         finish_attributes();
         if (_has_children) {
+            _indentation -= 1;
             indent();
-            _stream << "</" << _name << ">\n";
+            _stream << "</" << _name << ">";
         }
     }
 
@@ -88,7 +109,7 @@ private:
     std::string _name;
     bool _has_children = false;
     Type _type;
-    int _indentation = 0;
+    int _indentation = 1;
     Status _status = Status::Attributes;
     char _newline_character = '\n';
 };
