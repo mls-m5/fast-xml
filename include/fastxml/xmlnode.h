@@ -250,6 +250,16 @@ public:
                                 " on xml node " + std::string{name}};
     }
 
+    /// @brief Get a attribute as a type, but only if it exists, otherwise
+    /// receive a default value
+    template <typename T>
+    T optionalAttr(std::string_view name, T defaultValue = {}) const {
+        if (auto f = findAttr(name)) {
+            return f->number<T>();
+        }
+        return defaultValue;
+    }
+
 private:
     Type _type;
     std::string_view _name;
@@ -299,6 +309,25 @@ inline void xml_node_to_string(const XmlNode &node,
 inline std::ostream &operator<<(std::ostream &os, const XmlNode &node) {
     xml_node_to_string(node, os);
     return os;
+}
+
+/// String view specialization of optionalAttr
+template <>
+inline std::string_view XmlNode::optionalAttr<std::string_view>(
+    std::string_view name, std::string_view defaultValue) const {
+    if (auto f = findAttr(name)) {
+        return f->str();
+    }
+    return defaultValue;
+}
+
+template <>
+inline std::string XmlNode::optionalAttr<std::string>(
+    std::string_view name, std::string defaultValue) const {
+    if (auto f = findAttr(name)) {
+        return std::string{f->str()};
+    }
+    return defaultValue;
 }
 
 } // namespace fastxml
