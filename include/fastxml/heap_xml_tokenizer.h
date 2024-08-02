@@ -1,3 +1,4 @@
+#pragma once
 #include "heapxmltoken.h"
 #include <cctype>
 #include <istream>
@@ -6,7 +7,7 @@
 namespace fastxml {
 
 /// Tokenizer used for comparison, use tokenize instead
-std::vector<HeapXmlToken> tokenize_on_heap(std::istream &input) {
+inline std::vector<HeapXmlToken> tokenize_on_heap(std::istream &input) {
     std::vector<HeapXmlToken> tokens;
     std::string current_token;
     std::size_t line = 1, col = 1;

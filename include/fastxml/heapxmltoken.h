@@ -32,7 +32,7 @@ private:
     std::size_t _col;
 };
 
-std::string join_tokens(const std::vector<HeapXmlToken> &tokens) {
+inline std::string join_tokens(const std::vector<HeapXmlToken> &tokens) {
     std::string result;
     for (const auto &token : tokens) {
         if (token.type() == TokenType::TEXT_CONTENT) {

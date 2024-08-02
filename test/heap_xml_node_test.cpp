@@ -7,9 +7,8 @@
 
 using namespace fastxml;
 
-using XmlT = HeapXmlNode;
-
 TEST(HeapXmlTest, ParseSimpleXml) {
+    using XmlT = HeapXmlNode;
     std::string xml_input = "<root attr=\"value\">Hello, world!<empty"
                             "/><empty attr=\"v\"/></root>";
     std::istringstream input(xml_input);
@@ -32,6 +31,7 @@ TEST(HeapXmlTest, ParseSimpleXml) {
 }
 
 TEST(HeapXmlTest, ParseComplexXml) {
+    using XmlT = HeapXmlNode;
     std::string xml_input = R"(
 <catalog>
     <book id="bk101" edition="first">

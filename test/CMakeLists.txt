@@ -12,18 +12,13 @@ FetchContent_MakeAvailable(googletest)
 set(CMAKE_CXX_STANDARD 17)
 
 # Define a function to add a test
-function(add_xml_parser_test test_name)
-  add_executable(${test_name} ${test_name}.cpp)
-  target_link_libraries(${test_name} PRIVATE fastxml gtest_main)
-  add_test(NAME ${test_name} COMMAND ${test_name})
-endfunction()
+add_executable(
+    fast_xml_test
+    tests.cpp
+)
+target_link_libraries(fast_xml_test PRIVATE fastxml gtest_main)
+add_test(NAME fast_xml_test COMMAND fast_xml_test)
 
-# Add the two tests
-add_xml_parser_test(xml_tokenizer_test)
-add_xml_parser_test(xml_node_test)
-add_xml_parser_test(heap_xml_tokenizer_test)
-add_xml_parser_test(heap_xml_node_test)
-add_xml_parser_test(out_xml_node_test)
 
 file (COPY uggly.xml DESTINATION .)
 

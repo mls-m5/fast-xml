@@ -9,9 +9,8 @@
 
 using namespace fastxml;
 
-using XmlT = OutXmlNode;
-
 TEST(XmlTest, BasicOutputTest) {
+    using XmlT = OutXmlNode;
     std::ostringstream ss;
     {
         auto out = OutXmlNode{ss, "root"};

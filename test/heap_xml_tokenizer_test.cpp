@@ -6,9 +6,8 @@
 
 using namespace fastxml;
 
-using XmlToken = HeapXmlToken;
-
-TEST(XmlParserTest, TokenizeBasicXml) {
+TEST(HeapXmlTest, TokenizeBasicXml) {
+    using XmlToken = HeapXmlToken;
     std::string xml_input =
         "<root attr=\"value\">Hello, world!<empty attr=\"value\"/></root>";
     std::istringstream input(xml_input);
@@ -38,7 +37,8 @@ TEST(XmlParserTest, TokenizeBasicXml) {
     }
 }
 
-TEST(XmlParserTest, MoreComplexExample) {
+TEST(HeapXmlTest, MoreComplexExample) {
+    using XmlToken = HeapXmlToken;
     std::istringstream input(R"(
 <catalog>
     <book id="bk101" edition="first">

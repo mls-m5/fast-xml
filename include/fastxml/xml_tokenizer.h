@@ -1,3 +1,5 @@
+#pragma once
+
 #include "tokentype.h"
 #include "xmlfile.h"
 #include "xmltoken.h"
