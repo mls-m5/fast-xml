@@ -54,7 +54,7 @@ public:
     // points to the content
     std::shared_ptr<XmlFile> file;
 
-    auto &root() const {
+    const XmlNode &root() const {
         return nodes.front();
     }
 };
