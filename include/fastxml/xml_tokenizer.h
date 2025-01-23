@@ -15,7 +15,7 @@ namespace fastxml {
 inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     std::vector<XmlToken> tokens;
     std::string_view current_token;
-    std::size_t line = 1, col = 1;
+    // std::size_t line = 1, col = 1;
     const char *ch = nullptr;
 
     enum class State {
@@ -32,28 +32,28 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
 
     State state = State::TEXT;
 
-    auto next = [&] {
-        if (*ch == '\n') {
-            line++;
-            col = 1;
-        }
-        else {
-            col++;
-        }
-        input.get(ch);
-    };
+    auto line = [&] { return input.line(); };
+    auto col = [&] { return input.col(); };
+    auto next = [&] { input.get(ch); };
 
     if (std::isspace(input.peek())) {
-        input.get(ch); // I dont remember why i did this.
+        input.get(ch); // This is because next() requires ch to be set
     }
-    while (std::isspace(input.peek())) {
-        next();
-    }
+
+    auto removeSpaces = [&input, &next] {
+        while (std::isspace(input.peek())) {
+            next();
+        }
+    };
+
+    removeSpaces();
 
     if (input.peek() == '<' && input.peek(1) == '?') {
         for (; input.get(ch);) {
             if (*ch == '?' && input.peek() == '>') {
                 input.get(ch);
+
+                removeSpaces();
                 break;
             }
         }
@@ -70,20 +70,23 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     while (input.get(ch)) {
         switch (state) {
         case State::TEXT:
+            // This expects all spaces to be removed beforehand
             if (*ch == '<') {
                 // Remove comments
                 if (input.peek() == '!' && input.peek(1) == '-' &&
                     input.peek(2) == '-') {
-                    input.get(ch);
-                    input.get(ch);
-                    input.get(ch);
-                    input.get(ch);
+
+                    next();
+                    next();
+                    next();
+                    next();
                     for (; input.get(ch);) {
                         if (*ch == '-' && input.peek() == '-' &&
                             input.peek(1) == '>') {
-                            input.get(ch);
-                            input.get(ch);
-                            input.get(ch);
+                            next();
+                            next();
+                            next();
+                            removeSpaces();
                             break;
                         }
                     }
@@ -98,8 +101,8 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
                     // However it does not seem to be the biggest bottleneck.
                     tokens.emplace_back(TokenType::TEXT_CONTENT,
                                         current_token,
-                                        line,
-                                        col - current_token.size());
+                                        input.line(),
+                                        input.col() - current_token.size());
                     current_token = {};
                 }
                 state = State::OPEN_TAG;
@@ -121,16 +124,16 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             if (*ch == ' ') {
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 current_token = {};
                 state = State::ATTRIBUTE_NAME;
             }
             else if (*ch == '>') {
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 current_token = {};
                 state = State::TEXT;
 
@@ -144,8 +147,8 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             else if (*ch == '/') {
                 tokens.emplace_back(TokenType::ELEMENT_OPEN,
                                     current_token,
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 current_token = {};
 
                 if (current_token.empty()) {
@@ -169,8 +172,8 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             if (*ch == '=') {
                 tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
                                     current_token,
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 current_token = {};
                 state = State::ATTRIBUTE_VALUE_START;
             }
@@ -178,8 +181,8 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
                 if (!current_token.empty()) {
                     tokens.emplace_back(TokenType::ATTRIBUTE_NAME,
                                         current_token,
-                                        line,
-                                        col - current_token.size());
+                                        line(),
+                                        col() - current_token.size());
                     current_token = {};
                 }
                 state = State::TEXT;
@@ -193,15 +196,14 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             else if (*ch == '/') {
                 input.get(ch);
                 if (*ch != '>') {
-                    throw std::runtime_error{std::to_string(input.line()) +
-                                             ":" + std::to_string(input.col()) +
-                                             " expected '>' got " +
-                                             std::string{ch, 1}};
+                    throw std::runtime_error{
+                        std::to_string(line()) + ":" + std::to_string(col()) +
+                        " expected '>' got " + std::string{ch, 1}};
                 }
                 tokens.emplace_back(TokenType::ELEMENT_CLOSE,
                                     "",
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 state = State::TEXT;
             }
             else {
@@ -217,8 +219,8 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             if (*ch == '\"') {
                 tokens.emplace_back(TokenType::ATTRIBUTE_VALUE,
                                     current_token,
-                                    line,
-                                    col - current_token.size());
+                                    line(),
+                                    col() - current_token.size());
                 current_token = {};
                 state = State::ATTRIBUTE_NAME;
             }
@@ -230,7 +232,7 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             if (*ch == '>') {
                 state = State::TEXT;
                 tokens.emplace_back(
-                    TokenType::ELEMENT_CLOSE, current_token, line, col);
+                    TokenType::ELEMENT_CLOSE, current_token, line(), col());
                 current_token = {};
             }
             else {
@@ -250,17 +252,18 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             break;
         }
 
-        if (*ch == '\n') {
-            line++;
-            col = 1;
-        }
-        else {
-            col++;
-        }
+        // if (*ch == '\n') {
+        //     line++;
+        //     col = 1;
+        // }
+        // else {
+        //     col++;
+        // }
     }
 
     if (!current_token.empty()) {
-        tokens.emplace_back(TokenType::TEXT_CONTENT, current_token, line, col);
+        tokens.emplace_back(
+            TokenType::TEXT_CONTENT, current_token, line(), col());
         if (tokens.back().str().empty()) {
             tokens.pop_back();
         }
