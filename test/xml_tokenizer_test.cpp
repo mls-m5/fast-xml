@@ -40,6 +40,8 @@ TEST(XmlParserTest, TokenizeBasicXml) {
 
 TEST(XmlParserTest, MoreComplexExample) {
     std::istringstream input(R"(
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) not really but anyways -->
 <catalog>
     <book id="bk101" edition="first">
         <author>Gambardella, Matthew</author>

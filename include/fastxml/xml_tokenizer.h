@@ -44,10 +44,19 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
     };
 
     if (std::isspace(input.peek())) {
-        input.get(ch);
+        input.get(ch); // I dont remember why i did this.
     }
     while (std::isspace(input.peek())) {
         next();
+    }
+
+    if (input.peek() == '<' && input.peek(1) == '?') {
+        for (; input.get(ch);) {
+            if (*ch == '?' && input.peek() == '>') {
+                input.get(ch);
+                break;
+            }
+        }
     }
 
     auto addCh = [](std::string_view &sv, const char *ch) {
@@ -62,6 +71,26 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
         switch (state) {
         case State::TEXT:
             if (*ch == '<') {
+                // Remove comments
+                if (input.peek() == '!' && input.peek(1) == '-' &&
+                    input.peek(2) == '-') {
+                    input.get(ch);
+                    input.get(ch);
+                    input.get(ch);
+                    input.get(ch);
+                    for (; input.get(ch);) {
+                        if (*ch == '-' && input.peek() == '-' &&
+                            input.peek(1) == '>') {
+                            input.get(ch);
+                            input.get(ch);
+                            input.get(ch);
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+
                 current_token = strip(std::move(current_token));
                 if (!current_token.empty()) {
                     // TODO: Possible count the required amount of tokens in
@@ -164,7 +193,9 @@ inline std::vector<XmlToken> tokenize(XmlFile::Reader &input) {
             else if (*ch == '/') {
                 input.get(ch);
                 if (*ch != '>') {
-                    throw std::runtime_error{"expected '>' got " +
+                    throw std::runtime_error{std::to_string(input.line()) +
+                                             ":" + std::to_string(input.col()) +
+                                             " expected '>' got " +
                                              std::string{ch, 1}};
                 }
                 tokens.emplace_back(TokenType::ELEMENT_CLOSE,

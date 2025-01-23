@@ -19,7 +19,24 @@ public:
             if (status) {
                 ch = &content.at(position++);
             }
+
+            if (*ch == '\n') {
+                c = 1;
+                ++l;
+            }
+            else {
+                ++c;
+            }
+
             return *this;
+        }
+
+        int line() const {
+            return l;
+        }
+
+        int col() const {
+            return c;
         }
 
         int peek() const {
@@ -27,6 +44,16 @@ public:
                 return 0;
             }
             return content.at(position);
+        }
+
+        int peek(int offset) const {
+            if (!*this) {
+                return 0;
+            }
+            if (position + offset >= content.size()) {
+                return '0';
+            }
+            return content.at(position + offset);
         }
 
         operator bool() const {
@@ -37,6 +64,8 @@ public:
             : content{content} {}
 
     private:
+        int l = 1;
+        int c = 1;
         int position = 0;
         std::string_view content;
         bool status = true;
